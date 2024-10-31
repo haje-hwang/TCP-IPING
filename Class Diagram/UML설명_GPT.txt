@@ -1,0 +1,59 @@
+이 게임의 **서버-클라이언트 클래스 다이어그램**은 서버가 퀴즈 진행과 점수 관리를 담당하고, 클라이언트가 답변과 UI 관련 작업을 수행하는 구조를 나타냅니다. 주요 클래스는 **Server**, **Client**, **Timer** 및 **QuizManager** 등으로 나누어 설계할 수 있습니다.
+
+### **클래스 다이어그램 구조**
+
+1. **Server 클래스**
+   - **속성**:
+     - `rooms`: 방 목록 (Room 객체 리스트)
+     - `connectedClients`: 연결된 클라이언트들 (Client 리스트)
+   - **메서드**:
+     - `createRoom()`: 새로운 방 생성
+     - `joinRoom(Client)`: 클라이언트를 방에 참여시킴
+     - `broadcastQuestion()`: 모든 클라이언트에게 문제 전송
+     - `evaluateAnswers()`: 클라이언트 답변을 평가하여 점수 업데이트
+     - `endGame()`: 게임 종료 시 결과 전송 및 랭킹 발표
+
+2. **Client 클래스**
+   - **속성**:
+     - `playerName`: 플레이어 이름
+     - `score`: 현재 점수
+   - **메서드**:
+     - `submitAnswer(answer)`: 플레이어 답변 제출
+     - `updateScore(newScore)`: 점수 업데이트
+     - `displayTime(time)`: 남은 시간 표시
+     - `displayResults()`: 라운드 종료 후 결과 표시
+
+3. **Room 클래스**
+   - **속성**:
+     - `roomID`: 방 ID
+     - `players`: 방에 속한 플레이어 리스트
+     - `quizManager`: 현재 퀴즈 관리 인스턴스 (QuizManager 객체)
+   - **메서드**:
+     - `startGame()`: 방 내 모든 플레이어가 모이면 게임 시작
+     - `endGame()`: 게임 종료 시 방을 초기화
+
+4. **QuizManager 클래스**
+   - **속성**:
+     - `questions`: 퀴즈 문제 목록
+     - `currentQuestion`: 현재 문제
+   - **메서드**:
+     - `getNextQuestion()`: 다음 문제 불러오기
+     - `verifyAnswer(answer)`: 플레이어의 답변이 정답인지 확인
+     - `provideCorrectAnswer()`: 정답 반환
+
+5. **Timer 클래스**
+   - **속성**:
+     - `timeLimit`: 제한 시간 (예: 30초)
+     - `remainingTime`: 남은 시간
+   - **메서드**:
+     - `startTimer()`: 타이머 시작
+     - `resetTimer()`: 타이머 초기화
+     - `checkTime()`: 남은 시간 확인 및 갱신
+
+### **클래스 간의 관계**
+- **Server**는 여러 **Client**와 연결되며, **Room**과 **QuizManager** 인스턴스를 통해 게임을 관리합니다.
+- **Room**은 **QuizManager**와 **Timer**를 통해 퀴즈 진행과 타이머 관리를 수행합니다.
+- **Client**는 **Server**로부터 문제와 시간을 수신하고, 이를 표시하며 답변을 제출합니다.
+- **Timer**는 **QuizManager**의 각 문제에 대해 타이머를 관리하고, 시간 종료 시 Server에 이를 알립니다.
+
+이 구조는 서버가 퀴즈, 점수, 타이머 등 주요 로직을 처리하고, 클라이언트가 응답 및 사용자 인터페이스를 관리하는 기능을 분리하여 효율적인 네트워크 게임을 지원합니다.
