@@ -1,4 +1,4 @@
-using System;
+    using System;
 using System.Collections.Generic;
 
 namespace Lobby
@@ -15,8 +15,6 @@ namespace Lobby
         public int MaxPlayers { get; private set; }
         public List<ClientHandler> Players { get; private set; }
         public LobbyMode State { get; private set; }
-        public bool isGameStarted { get; private set; }
-
         public GameLobby(string name, int maxPlayers)
         {
             uuid = Guid.NewGuid();
@@ -25,7 +23,6 @@ namespace Lobby
             Players = new List<ClientHandler>();
 
             State = LobbyMode.PUBLIC;
-            isGameStarted = false;
         }
 
         public bool AddPlayer(ClientHandler player)

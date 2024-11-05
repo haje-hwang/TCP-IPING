@@ -30,13 +30,15 @@ public class _testServerManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetMouseButtonUp(1))
+        if(Input.anyKeyDown)
         {
             testServer.isRunning = false;
             foreach(_testClient client in testClients)
             {
+                client.isTestRunning = false;
                 client.GetHandler().isRunning = false;
             }
+            Debug.Log("Test End");
         }
     }
 }
