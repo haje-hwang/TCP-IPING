@@ -724,7 +724,6 @@ GameObject:
   - component: {fileID: 1166944613}
   - component: {fileID: 1166944616}
   - component: {fileID: 1166944615}
-  - component: {fileID: 1166944617}
   - component: {fileID: 1166944614}
   m_Layer: 5
   m_Name: NicknameInput
@@ -889,21 +888,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1166944612}
   m_CullTransparentMesh: 1
---- !u!114 &1166944617
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1166944612}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: da3062b22ac99d44ca85200ae26e97aa, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  nicknameInput: {fileID: 0}
-  RoomCreate: {fileID: 512294545}
-  RoomJoin: {fileID: 1614262277}
 --- !u!1 &1614262275
 GameObject:
   m_ObjectHideFlags: 0
@@ -1381,6 +1365,7 @@ GameObject:
   - component: {fileID: 2015020815}
   - component: {fileID: 2015020814}
   - component: {fileID: 2015020813}
+  - component: {fileID: 2015020817}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -1473,6 +1458,21 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &2015020817
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2015020812}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: da3062b22ac99d44ca85200ae26e97aa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  NicknameInput: {fileID: 0}
+  RoomCreate: {fileID: 512294545}
+  RoomJoin: {fileID: 1614262277}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

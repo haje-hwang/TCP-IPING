@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 public class LoginManager : MonoBehaviour
 {
-    public InputField nicknameInput; // 닉네임 입력 필드
+    public InputField NicknameInput; // 닉네임 입력 필드
     public Button RoomCreate;  // 방 만들기 버튼
     public Button RoomJoin;    // 방 입장 버튼
 
@@ -19,7 +19,7 @@ public class LoginManager : MonoBehaviour
 
     public void SaveNickname()
     {
-        playerNickname = nicknameInput.text;
+        playerNickname = NicknameInput.text;
         PlayerPrefs.SetString("PlayerNickname", playerNickname); // 닉네임을 저장
         Debug.Log("닉네임 저장됨: " + playerNickname);
     }
