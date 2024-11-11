@@ -1,45 +1,44 @@
 using System;
 using System.Net.Sockets;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Lobby
 {
     public class ClientHandler
     {
+        public User user;
         public bool isRunning = true;
         private TcpClient client;
-        private LobbyServer server;
         private NetworkStream stream;
 
-        public ClientHandler(TcpClient client, LobbyServer server)
+        public ClientHandler(TcpClient client)
         {
             this.client = client;
-            this.server = server;
             stream = client.GetStream();
         }
 
-        public void Start()
+        public async Task Start()
         {
-            Thread thread = new Thread(HandleClient);
-            thread.Start();
+            await Task.Run(() => HandleClient());
         }
 
-        private async void HandleClient()
+        private async Task HandleClient()
         {
             try
             {
                 byte[] buffer = new byte[Constants.Packet.bufferLength];
                 while (isRunning)
                 {
-                    //데이터를 보낼 때까지 대기하고 처리
+                    //데이터를 수신 대기
                     int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
-                    if (bytesRead == 0) break;
+                    if (bytesRead == 0) break;  // 클라이언트가 연결을 종료한 경우
 
                     string message = Constants.Packet.encoding.GetString(buffer, 0, bytesRead);
                     ProcessPacket(message);
                 }
                 UnityEngine.Debug.Log("ClientHandler Closed");
-                client.Close();
+                Close();
             }
             catch (System.Exception)
             {
@@ -47,10 +46,15 @@ namespace Lobby
                 throw;
             }
         }
+        public void Close()
+        {
+            isRunning = false;
+            client.Close();
+        }
 
         public void SendMessage(string message)
         {
-            IPacket packet = new IPacket("message", message);
+            IPacket packet = new IPacket(PacketType.Message, message);
             SendPacket(packet);
         }
 
@@ -60,7 +64,8 @@ namespace Lobby
             {
                 IPacket packet = PacketHelper.Deserialize(jsonPacket);
                 // 패킷 처리 로직 구현
-                UnityEngine.Debug.Log($"Packet: {packet.PacketType}, {packet.Data}");
+                HandlePacketType(packet);
+                UnityEngine.Debug.Log($"Packet: {packet.type}, {packet.data}");
             }
             catch (System.Exception)
             {
@@ -69,6 +74,37 @@ namespace Lobby
             }  
         }
 
+        private void HandlePacketType(IPacket packet)
+        {
+            switch (packet.type)
+            {
+                case PacketType.StartJoin:
+                    //서버에 접속할 때
+                    UID uid = (UID)packet.data;
+                    if(uid == 0)
+                        DefineUser();
+                    break;
+                case PacketType.JoinLobby:
+                    //packet.data로 LobbyID를 받기
+                    //이후 Lobby에 해당 유저 넣기
+                    break;
+                case PacketType.LeaveLobby:
+                    //packet.data로 LobbyID를 받기
+                    //이후 Lobby에 해당 유저 삭제
+                    break;
+                case PacketType.Answer:
+                    break;
+                case PacketType.Message:
+                    break;
+                case PacketType.UpdateUserData:
+                    User user = (User)packet.data;
+                    UserList.Instance.UpdateUser(user);
+                    break;
+                default:
+                    break;
+            }
+            
+        }
         public async void SendPacket(IPacket packet)
         {
             try
@@ -82,6 +118,13 @@ namespace Lobby
                 
                 throw;
             }
+        }
+
+        private void DefineUser()
+        {
+            User newUser = UserList.Instance.CreateNewUser();
+            IPacket packet = new IPacket(PacketType._DefineUser, newUser);
+            SendPacket(packet);
         }
     }
 }
