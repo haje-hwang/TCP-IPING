@@ -2,11 +2,11 @@ using System.Collections.Generic;
 
 public struct Quiz
 {
-    public List<Question> questions; // 퀴즈 리스트
+    public List<Question> questions;
 
-    // 생성자
-    public Quiz(List<Question> questions)
+    // 명시적으로 초기화 메서드 추가
+    public void Initialize()
     {
-        this.questions = questions;
+        questions = new List<Question>();
     }
 }
