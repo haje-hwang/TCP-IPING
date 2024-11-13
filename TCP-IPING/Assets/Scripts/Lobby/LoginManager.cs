@@ -1,6 +1,6 @@
 using TMPro;
-using UnityEditor.XR;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class LoginManager : MonoBehaviour
@@ -30,15 +30,20 @@ public class LoginManager : MonoBehaviour
     public void OnCreateRoom()
     {
         SaveNickname();
+
+        // 닉네임이 비어있지 않으면 WaitingRoom 씬으로 이동
+        if (!string.IsNullOrEmpty(playerNickname))
+        {
+            SceneManager.LoadScene("WaitingScene");
+        }
+        else
+        {
+            Debug.LogWarning("닉네임을 입력해주세요.");
+        }
     }
 
     void OnJoinRoom()
     {
- 
         panel.SetActive(true);  // Panel을 다시 보이게 함
-        
     }
 }
-
-
-
