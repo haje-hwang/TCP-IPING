@@ -23,7 +23,14 @@ public class _testServerManager : MonoBehaviour
         GameLobby testLobby = testServer.CreateLobby("testLobby", 4);
         foreach(_testClient client in testClients)
         {
-            if(!testLobby.AddPlayer(client.GetHandler())) { Debug.LogWarning("Failled to add player.");}
+            if(!testLobby.AddPlayer(client.GetHandler())) 
+            { 
+                Debug.LogWarning("Failled to add player.");
+            }
+            else
+            {
+                Debug.Log($"{client.name} added in testLobby, UID:{testLobby.data.uid}");
+            }
         }
     }
 

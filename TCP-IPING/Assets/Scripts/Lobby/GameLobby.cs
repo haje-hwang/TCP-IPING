@@ -11,89 +11,62 @@ namespace Lobby
         PUBLIC,
         PRIVATE
     }
-    public class GameLobby
+    public class LobbyData
     {
         public UID uid { get; private set; }    
         public string name { get; private set; }
         public int maxPlayers { get; private set; }
         public LobbyMode state { get; private set; }
+        public List<User> players { get; private set; }
+        public LobbyData(UID uid, string name, int maxPlayers, LobbyMode mode = LobbyMode.PUBLIC)
+        {
+            this.uid = uid;
+            this.name = name;
+            this.maxPlayers = maxPlayers;
+            players = new List<User>();
+            state = mode;
+        }
+    }
+    public class GameLobby
+    {
+        public LobbyData data;
         public bool isRunning {get; private set;}
 
-        public List<ClientHandler> players { get; private set; }
-        private TcpListener listener;
+        public List<ClientHandler> clients { get; private set; }
+
         //Events
         public delegate void LobbyJoin(User joinedUser);
         public delegate void LobbyExit(User exitedUser);
         public event LobbyJoin OnLobbyJoined;
         public event LobbyExit OnLobbyExited;
 
-        public GameLobby(UID uid, string name, int maxPlayers)
+        public GameLobby(LobbyData data)
         {
-            this.uid = uid;
-            this.name = name;
-            this.maxPlayers = maxPlayers;
-            players = new List<ClientHandler>();
-
-            state = LobbyMode.PUBLIC;
+            this.data = data;
+            isRunning = true;
+            clients = new List<ClientHandler>();
         }
-        public async Task StartHosting(int port)
-        {
-            listener = new TcpListener(IPAddress.Any, port);
-            listener.Start();
-            // Console.WriteLine($"서버가 {port}번 포트에서 시작되었습니다.");
-            UnityEngine.Debug.Log($"서버가 {port}번 포트에서 시작되었습니다.");
-
-            while (isRunning)
-            {
-                try
-                {
-                    // 비동기 방식으로 클라이언트 연결을 기다림
-                    TcpClient client = await listener.AcceptTcpClientAsync();
-                    UnityEngine.Debug.Log("클라이언트가 연결되었습니다.");
-                    
-                    ClientHandler handler = new ClientHandler(client);
-                    AddPlayer(handler);
-                    await handler.Start();
-                }
-                catch (System.Exception)
-                {
-                    
-                    throw;
-                }
-            }
-        }
-        ~GameLobby()
-        {
-            StopHosting();
-        }
-        public void StopHosting()
-        {
-            isRunning = false;
-            listener.Stop();
-        }
-        //
         public bool AddPlayer(ClientHandler player)
         {
-            if (players.Count < maxPlayers)
+            if (clients.Count < data.maxPlayers)
             {
-                players.Add(player);
+                clients.Add(player);
                 OnLobbyJoined?.Invoke(player.user);
                 return true;
             }
             return false;
         }
-
         public void RemovePlayer(ClientHandler player)
         {
             OnLobbyExited?.Invoke(player.user);
-            players.Remove(player);
+            clients.Remove(player);
         }
         //
         public void BroadcastMessage(string message)
         {
-            foreach (var player in players)
+            foreach (var client in clients)
             {
-                player.SendMessage(message);
+                client.SendMessage(message);
             }
         }
         // 기타 로비 관련 메서드들...

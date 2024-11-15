@@ -17,12 +17,6 @@ namespace Lobby
         public delegate void UserExit(User exitedUser);
         public event UserJoin OnUserJoined;
         public event UserExit OnUserExited;
-        
-        // public void UserJoin(User joinedUser)
-        // {
-        //     OnUserJoined?.Invoke(joinedUser);
-        // }
-
 
         public async void Start(int port)
         {
@@ -39,7 +33,7 @@ namespace Lobby
                     TcpClient client = await listener.AcceptTcpClientAsync();
                     UnityEngine.Debug.Log("클라이언트가 연결되었습니다.");
                     
-                    ClientHandler handler = new ClientHandler(client);
+                    ClientHandler handler = new ClientHandler(client, this);
                     clients.Add(handler);
                     await handler.Start();
                 }
@@ -62,15 +56,29 @@ namespace Lobby
         public GameLobby CreateLobby(string name, int maxPlayers)
         {
             UID lobby_uid = UID.NewUID();
-            GameLobby lobby = new GameLobby(lobby_uid, name, maxPlayers);
+            LobbyData data = new LobbyData(lobby_uid, name, maxPlayers);
+            GameLobby lobby = new GameLobby(data);
             lobbies.Add(lobby);
             return lobby;
         }
 
+
         // 기타 로비 관리 메서드들...
-        GameLobby FindLobby(UID uid)
+        GameLobby FindLobby(uint uid)
         {
-            return lobbies.FirstOrDefault(lobby => lobby.uid == uid);
+            return lobbies.FirstOrDefault(lobby => lobby.data.uid == uid);
         } 
+        public bool JoinLobby(uint lobbyCode, ClientHandler client)
+        {
+            GameLobby lobby = FindLobby(lobbyCode);
+            lobby.AddPlayer(client);
+            return false;
+        }
+        public bool LeaveLobby(uint lobbyCode, ClientHandler client)
+        {
+            GameLobby lobby = FindLobby(lobbyCode);
+            lobby.RemovePlayer(client);
+            return false;
+        }
     }
 }

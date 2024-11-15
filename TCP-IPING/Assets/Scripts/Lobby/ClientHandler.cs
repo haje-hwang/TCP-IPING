@@ -7,14 +7,17 @@ namespace Lobby
 {
     public class ClientHandler
     {
+        LobbyServer server;
+        //
         public User user;
         public bool isRunning = true;
         private TcpClient client;
         private NetworkStream stream;
 
-        public ClientHandler(TcpClient client)
+        public ClientHandler(TcpClient client, LobbyServer server)
         {
             this.client = client;
+            this.server = server;
             stream = client.GetStream();
         }
 
@@ -22,6 +25,31 @@ namespace Lobby
         {
             await Task.Run(() => HandleClient());
         }
+        public void Close()
+        {
+            isRunning = false;
+        }
+        public void SendMessage(string message)
+        {
+            IPacket packet = new IPacket(PacketType.Message, message);
+            SendPacket(packet);
+        }
+        public async void SendPacket(IPacket packet)
+        {
+            try
+            {
+                packet.id = 1;
+                string jsonPacket = PacketHelper.Serialize(packet);
+                byte[] buffer = Constants.Packet.encoding.GetBytes(jsonPacket);
+                await stream.WriteAsync(buffer, 0, buffer.Length);
+            }
+            catch (System.Exception)
+            {
+                
+                throw;
+            }
+        }
+
 
         private async Task HandleClient()
         {
@@ -37,34 +65,32 @@ namespace Lobby
                     string message = Constants.Packet.encoding.GetString(buffer, 0, bytesRead);
                     ProcessPacket(message);
                 }
-                UnityEngine.Debug.Log("ClientHandler Closed");
-                Close();
+                _Close();
             }
-            catch (System.Exception)
+            catch (System.Exception e)
             {
-                
+                UnityEngine.Debug.LogWarning(e);
                 throw;
             }
         }
-        public void Close()
+        private void _Close()
         {
-            isRunning = false;
+            UnityEngine.Debug.Log("ClientHandler Closed");
             client.Close();
         }
 
-        public void SendMessage(string message)
-        {
-            IPacket packet = new IPacket(PacketType.Message, message);
-            SendPacket(packet);
-        }
 
+        /// <summary>
+        /// 받은 string을 패킷으로 Deserialize
+        /// </summary>
+        /// <param name="jsonPacket"></param>
         private void ProcessPacket(string jsonPacket)
         {
             try
             {
                 IPacket packet = PacketHelper.Deserialize(jsonPacket);
                 // 패킷 처리 로직 구현
-                HandlePacketType(packet);
+                PacketHandler packetHandler = new PacketHandler(server, packet, this);
                 UnityEngine.Debug.Log($"Packet: {packet.type}, {packet.data}");
             }
             catch (System.Exception)
@@ -72,59 +98,6 @@ namespace Lobby
                 
                 throw;
             }  
-        }
-
-        private void HandlePacketType(IPacket packet)
-        {
-            switch (packet.type)
-            {
-                case PacketType.StartJoin:
-                    //서버에 접속할 때
-                    UID uid = (UID)packet.data;
-                    if(uid == 0)
-                        DefineUser();
-                    break;
-                case PacketType.JoinLobby:
-                    //packet.data로 LobbyID를 받기
-                    //이후 Lobby에 해당 유저 넣기
-                    break;
-                case PacketType.LeaveLobby:
-                    //packet.data로 LobbyID를 받기
-                    //이후 Lobby에 해당 유저 삭제
-                    break;
-                case PacketType.Answer:
-                    break;
-                case PacketType.Message:
-                    break;
-                case PacketType.UpdateUserData:
-                    User user = (User)packet.data;
-                    UserList.Instance.UpdateUser(user);
-                    break;
-                default:
-                    break;
-            }
-            
-        }
-        public async void SendPacket(IPacket packet)
-        {
-            try
-            {
-                string jsonPacket = PacketHelper.Serialize(packet);
-                byte[] buffer = Constants.Packet.encoding.GetBytes(jsonPacket);
-                await stream.WriteAsync(buffer, 0, buffer.Length);
-            }
-            catch (System.Exception)
-            {
-                
-                throw;
-            }
-        }
-
-        private void DefineUser()
-        {
-            User newUser = UserList.Instance.CreateNewUser();
-            IPacket packet = new IPacket(PacketType._DefineUser, newUser);
-            SendPacket(packet);
         }
     }
 }

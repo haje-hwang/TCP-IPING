@@ -5,9 +5,9 @@ using UnityEngine.UI;
 
 public class LoginManager : MonoBehaviour
 {
-    public TMP_InputField nicknameInputField; // ´Ğ³×ÀÓ ÀÔ·Â ÇÊµå
-    public Button RoomCreate;  // ¹æ ¸¸µé±â ¹öÆ°
-    public Button RoomJoin;    // ¹æ ÀÔÀå ¹öÆ°
+    public TMP_InputField nicknameInputField; // ë‹‰ë„¤ì„ ì…ë ¥ í•„ë“œ
+    public Button RoomCreate;  // ë°© ë§Œë“¤ê¸° ë²„íŠ¼
+    public Button RoomJoin;    // ë°© ì…ì¥ ë²„íŠ¼
     public TMP_InputField RoomJoinInput;
     public GameObject panel;
 
@@ -15,7 +15,7 @@ public class LoginManager : MonoBehaviour
 
     void Start()
     {
-        // ¹öÆ° Å¬¸¯ ½Ã È£ÃâÇÒ ÇÔ¼ö ¿¬°á
+        // ë²„íŠ¼ í´ë¦­ ì‹œ í˜¸ì¶œí•  í•¨ìˆ˜ ì—°ê²°
         RoomCreate.onClick.AddListener(OnCreateRoom);
         RoomJoin.onClick.AddListener(OnJoinRoom);
     }
@@ -23,27 +23,27 @@ public class LoginManager : MonoBehaviour
     public void SaveNickname()
     {
         playerNickname = nicknameInputField.text;
-        PlayerPrefs.SetString("PlayerNickname", playerNickname); // ´Ğ³×ÀÓÀ» ÀúÀå
-        Debug.Log("´Ğ³×ÀÓ ÀúÀåµÊ: " + playerNickname);
+        PlayerPrefs.SetString("PlayerNickname", playerNickname); // ë‹‰ë„¤ì„ì„ ì €ì¥
+        Debug.Log("ë‹‰ë„¤ì„ ì €ì¥ë¨: " + playerNickname);
     }
 
     public void OnCreateRoom()
     {
         SaveNickname();
 
-        // ´Ğ³×ÀÓÀÌ ºñ¾îÀÖÁö ¾ÊÀ¸¸é WaitingRoom ¾ÀÀ¸·Î ÀÌµ¿
+        // ë‹‰ë„¤ì„ì´ ë¹„ì–´ìˆì§€ ì•Šìœ¼ë©´ WaitingRoom ì”¬ìœ¼ë¡œ ì´ë™
         if (!string.IsNullOrEmpty(playerNickname))
         {
             SceneManager.LoadScene("WaitingScene");
         }
         else
         {
-            Debug.LogWarning("´Ğ³×ÀÓÀ» ÀÔ·ÂÇØÁÖ¼¼¿ä.");
+            Debug.LogWarning("ë‹‰ë„¤ì„ì„ ì…ë ¥í•´ì£¼ì„¸ìš”.");
         }
     }
 
     void OnJoinRoom()
     {
-        panel.SetActive(true);  // PanelÀ» ´Ù½Ã º¸ÀÌ°Ô ÇÔ
+        panel.SetActive(true);  // Panelì„ ë‹¤ì‹œ ë³´ì´ê²Œ í•¨
     }
 }

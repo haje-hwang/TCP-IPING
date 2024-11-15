@@ -12,7 +12,7 @@ public class _testClient : MonoBehaviour
     public void Connect2Server(Lobby.LobbyServer testLobby)
     {
         TcpClient tcpClient = new TcpClient("127.0.0.1", PORT);
-        handler = new Lobby.ClientHandler(tcpClient);
+        handler = new Lobby.ClientHandler(tcpClient, testLobby);
 
         handler.SendMessage($"hi I'm {gameObject.name}. started in 127.0.0.1, {PORT}");
         isTestRunning = true;
