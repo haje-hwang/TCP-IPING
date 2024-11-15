@@ -1,0 +1,15 @@
+C:\Tcp\TCP-IPING\Server\Server_No_Library\Quiz_Server\bin\Debug\net8.0\Quiz_Server.exe
+C:\Tcp\TCP-IPING\Server\Server_No_Library\Quiz_Server\bin\Debug\net8.0\Quiz_Server.deps.json
+C:\Tcp\TCP-IPING\Server\Server_No_Library\Quiz_Server\bin\Debug\net8.0\Quiz_Server.runtimeconfig.json
+C:\Tcp\TCP-IPING\Server\Server_No_Library\Quiz_Server\bin\Debug\net8.0\Quiz_Server.dll
+C:\Tcp\TCP-IPING\Server\Server_No_Library\Quiz_Server\bin\Debug\net8.0\Quiz_Server.pdb
+C:\Tcp\TCP-IPING\Server\Server_No_Library\Quiz_Server\obj\Debug\net8.0\Quiz_Server.GeneratedMSBuildEditorConfig.editorconfig
+C:\Tcp\TCP-IPING\Server\Server_No_Library\Quiz_Server\obj\Debug\net8.0\Quiz_Server.AssemblyInfoInputs.cache
+C:\Tcp\TCP-IPING\Server\Server_No_Library\Quiz_Server\obj\Debug\net8.0\Quiz_Server.AssemblyInfo.cs
+C:\Tcp\TCP-IPING\Server\Server_No_Library\Quiz_Server\obj\Debug\net8.0\Quiz_Server.csproj.CoreCompileInputs.cache
+C:\Tcp\TCP-IPING\Server\Server_No_Library\Quiz_Server\obj\Debug\net8.0\Quiz_Server.sourcelink.json
+C:\Tcp\TCP-IPING\Server\Server_No_Library\Quiz_Server\obj\Debug\net8.0\Quiz_Server.dll
+C:\Tcp\TCP-IPING\Server\Server_No_Library\Quiz_Server\obj\Debug\net8.0\refint\Quiz_Server.dll
+C:\Tcp\TCP-IPING\Server\Server_No_Library\Quiz_Server\obj\Debug\net8.0\Quiz_Server.pdb
+C:\Tcp\TCP-IPING\Server\Server_No_Library\Quiz_Server\obj\Debug\net8.0\Quiz_Server.genruntimeconfig.cache
+C:\Tcp\TCP-IPING\Server\Server_No_Library\Quiz_Server\obj\Debug\net8.0\ref\Quiz_Server.dll

@@ -1,70 +1,104 @@
-using System.Collections;
+using System;
+using System.IO;
+using System.Net;
+using System.Text;
+using TMPro;
 using UnityEngine;
-using UnityEngine.Networking;
 
 public class QuizClient : MonoBehaviour
 {
-    // 서버 주소
-    private string baseUrl = "http://localhost:5039/swagger/index.html";
-    private string nickname = "";
+    private string serverUrl = "http://localhost:5000";
+    private string nickname;
+    private string roomCode;
+    public TMP_InputField name;
 
     // 닉네임 설정
     public void SetNickname(string newNickname)
     {
         nickname = newNickname;
-        StartCoroutine(SendPostRequest("/Room/SetNickname", "{\"nickname\":\"" + nickname + "\"}", (response) =>
-        {
-            Debug.Log("Nickname set: " + nickname);
-        }));
+        var data = "{\"nickname\":\"" + name + "\"}";
+        string response = SendPostRequest("/SetNickname", data);
+        Debug.Log("SetNickname Response: " + response);
     }
 
     // 방 생성
-    public void CreateRoom(string roomCode)
+    public void CreateRoom(string newRoomCode)
     {
-        StartCoroutine(SendPostRequest("/Room/CreateRoom", "{\"roomCode\":\"" + roomCode + "\"}", (response) =>
-        {
-            Debug.Log("Room created: " + response);
-        }));
+        roomCode = newRoomCode;
+        var data = "{\"roomCode\":\"" + roomCode + "\"}";
+        string response = SendPostRequest("/CreateRoom", data);
+        Debug.Log("CreateRoom Response: " + response);
     }
 
-    // 방 참여
-    public void JoinRoom(string roomCode, string username)
+    // 게임 시작 요청 (방장만 가능)
+    public void StartGame()
     {
-        StartCoroutine(SendPostRequest("/Room/JoinRoom", "{\"roomCode\":\"" + roomCode + "\", \"username\":\"" + username + "\"}", (response) =>
+        if (string.IsNullOrEmpty(roomCode))
         {
-            Debug.Log("Joined room: " + response);
-        }));
+            Debug.LogError("Room code not set!");
+            return;
+        }
+
+        var data = "{\"roomCode\":\"" + roomCode + "\"}";
+        string response = SendPostRequest("/StartGame", data);
+        Debug.Log("StartGame Response: " + response);
     }
 
     // 정답 제출
-    public void SubmitAnswer(string roomCode, string username, string answer)
+    public void SubmitAnswer(string answer)
     {
-        StartCoroutine(SendPostRequest("/Room/SubmitAnswer",
-            "{\"roomCode\":\"" + roomCode + "\", \"username\":\"" + username + "\", \"answer\":\"" + answer + "\"}",
-            (response) =>
-            {
-                Debug.Log("Answer submitted: " + response);
-            }));
+        if (string.IsNullOrEmpty(roomCode))
+        {
+            Debug.LogError("Room code not set!");
+            return;
+        }
+
+        var data = "{\"roomCode\":\"" + roomCode + "\", \"answer\":\"" + answer + "\"}";
+        string response = SendPostRequest("/SubmitAnswer", data);
+        Debug.Log("SubmitAnswer Response: " + response);
     }
 
-    // 공통 POST 요청 처리 함수
-    IEnumerator SendPostRequest(string endpoint, string json, System.Action<string> callback)
+    // 게임 종료 및 랭킹 표시
+    public void EndGame()
     {
-        UnityWebRequest request = new UnityWebRequest(baseUrl + endpoint, "POST");
-        byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(json);
-        request.uploadHandler = new UploadHandlerRaw(bodyRaw);
-        request.downloadHandler = new DownloadHandlerBuffer();
-        request.SetRequestHeader("Content-Type", "application/json");
-
-        yield return request.SendWebRequest();
-
-        if (request.result == UnityWebRequest.Result.Success)
+        if (string.IsNullOrEmpty(roomCode))
         {
-            callback?.Invoke(request.downloadHandler.text);
+            Debug.LogError("Room code not set!");
+            return;
         }
-        else
+
+        var data = "{\"roomCode\":\"" + roomCode + "\"}";
+        string response = SendPostRequest("/EndGame", data);
+        Debug.Log("EndGame Response: " + response);
+    }
+
+    // POST 요청 처리 함수
+    private string SendPostRequest(string endpoint, string json)
+    {
+        try
         {
-            Debug.LogError("Request Error: " + request.error);
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(serverUrl + endpoint);
+            request.Method = "POST";
+            request.ContentType = "application/json";
+
+            byte[] byteArray = Encoding.UTF8.GetBytes(json);
+            request.ContentLength = byteArray.Length;
+
+            using (Stream dataStream = request.GetRequestStream())
+            {
+                dataStream.Write(byteArray, 0, byteArray.Length);
+            }
+
+            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+            using (StreamReader reader = new StreamReader(response.GetResponseStream()))
+            {
+                return reader.ReadToEnd();
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError("Request failed: " + ex.Message);
+            return null;
         }
     }
 }
