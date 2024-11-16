@@ -8,15 +8,15 @@ using System.Text.Json;
 
 public class QuizServer
 {
-    private static Dictionary<string, Room> rooms = new(); // RoomCode -> Room object
-    private static Dictionary<string, string> userNicknames = new(); // ConnectionId -> Nickname
+    private static Dictionary<string, Room> rooms = new();
+    private static Dictionary<string, string> userNicknames = new();
 
     public static void Main(string[] args)
     {
         HttpListener listener = new HttpListener();
-        listener.Prefixes.Add("http://localhost:5000/");
+        listener.Prefixes.Add("http://192.168.0.3/");
         listener.Start();
-        Console.WriteLine("Server is running on http://localhost:5000/");
+        Console.WriteLine("Server started on http://192.168.0.3/");
 
         while (true)
         {
@@ -28,32 +28,39 @@ public class QuizServer
     private static void ProcessRequest(HttpListenerContext context)
     {
         string responseString = "";
+        string clientIp = context.Request.RemoteEndPoint.ToString();
+
         try
         {
             string method = context.Request.HttpMethod;
             string endpoint = context.Request.Url.AbsolutePath;
 
+            Console.WriteLine($"[{DateTime.Now}] {method} request from {clientIp} to {endpoint}");
+
             if (method == "POST" && endpoint == "/SetNickname")
             {
                 var requestData = ReadRequestBody(context.Request);
                 var nickname = requestData["nickname"];
-                userNicknames[context.Request.RemoteEndPoint.ToString()] = nickname;
+                userNicknames[clientIp] = nickname;
                 responseString = JsonSerializer.Serialize(new { success = true, nickname });
+
+                Console.WriteLine($"Set nickname: {nickname} for {clientIp}");
             }
             else if (method == "POST" && endpoint == "/CreateRoom")
             {
                 var requestData = ReadRequestBody(context.Request);
                 var roomCode = requestData["roomCode"];
-                var connectionId = context.Request.RemoteEndPoint.ToString();
                 if (!rooms.ContainsKey(roomCode))
                 {
-                    var room = new Room(roomCode, userNicknames[connectionId]); // 방 생성 시 방장 지정
-                    rooms[roomCode] = room;
-                    responseString = JsonSerializer.Serialize(new { success = true, roomCode, host = room.Host });
+                    rooms[roomCode] = new Room(roomCode, userNicknames[clientIp]);
+                    responseString = JsonSerializer.Serialize(new { success = true, roomCode, host = userNicknames[clientIp] });
+
+                    Console.WriteLine($"Room created: {roomCode} by host {userNicknames[clientIp]}");
                 }
                 else
                 {
                     responseString = JsonSerializer.Serialize(new { success = false, message = "Room already exists" });
+                    Console.WriteLine($"Failed to create room: {roomCode} (already exists)");
                 }
             }
             else if (method == "POST" && endpoint == "/StartGame")
@@ -62,19 +69,23 @@ public class QuizServer
                 var roomCode = requestData["roomCode"];
                 if (rooms.TryGetValue(roomCode, out var room))
                 {
-                    if (room.Host == userNicknames[context.Request.RemoteEndPoint.ToString()])
+                    if (room.Host == userNicknames[clientIp])
                     {
                         room.StartGame();
                         responseString = JsonSerializer.Serialize(new { success = true, questions = room.Questions });
+
+                        Console.WriteLine($"Game started in room {roomCode} by host {room.Host}");
                     }
                     else
                     {
                         responseString = JsonSerializer.Serialize(new { success = false, message = "Only the host can start the game" });
+                        Console.WriteLine($"Unauthorized game start attempt by {userNicknames[clientIp]}");
                     }
                 }
                 else
                 {
                     responseString = JsonSerializer.Serialize(new { success = false, message = "Room not found" });
+                    Console.WriteLine($"Failed to start game: Room {roomCode} not found");
                 }
             }
             else if (method == "POST" && endpoint == "/SubmitAnswer")
@@ -82,27 +93,27 @@ public class QuizServer
                 var requestData = ReadRequestBody(context.Request);
                 var roomCode = requestData["roomCode"];
                 var answer = requestData["answer"];
-                var connectionId = context.Request.RemoteEndPoint.ToString();
 
                 if (rooms.TryGetValue(roomCode, out var room))
                 {
-                    var nickname = userNicknames[connectionId];
+                    var nickname = userNicknames[clientIp];
                     bool isCorrect = room.CheckAnswer(answer);
                     if (isCorrect)
                     {
-                        room.UpdateScore(nickname, 10); // 정답 시 10점 추가
+                        room.UpdateScore(nickname, 10);
+                        Console.WriteLine($"{nickname} in room {roomCode} answered correctly! New score: {room.Scores[nickname]}");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"{nickname} in room {roomCode} answered incorrectly");
                     }
 
-                    responseString = JsonSerializer.Serialize(new
-                    {
-                        success = true,
-                        correct = isCorrect,
-                        score = room.Scores[nickname]
-                    });
+                    responseString = JsonSerializer.Serialize(new { success = true, correct = isCorrect, score = room.Scores[nickname] });
                 }
                 else
                 {
                     responseString = JsonSerializer.Serialize(new { success = false, message = "Room not found" });
+                    Console.WriteLine($"Failed to submit answer: Room {roomCode} not found");
                 }
             }
             else if (method == "POST" && endpoint == "/EndGame")
@@ -113,22 +124,28 @@ public class QuizServer
                 if (rooms.TryGetValue(roomCode, out var room))
                 {
                     var rankings = room.GetRankings();
-                    rooms.Remove(roomCode); // 게임 종료 후 방 삭제
+                    rooms.Remove(roomCode);
+
+                    Console.WriteLine($"Game ended in room {roomCode}. Rankings: {string.Join(", ", rankings.Select(r => $"{r.Key} ({r.Value} points)"))}");
+
                     responseString = JsonSerializer.Serialize(new { success = true, rankings });
                 }
                 else
                 {
                     responseString = JsonSerializer.Serialize(new { success = false, message = "Room not found" });
+                    Console.WriteLine($"Failed to end game: Room {roomCode} not found");
                 }
             }
             else
             {
                 responseString = JsonSerializer.Serialize(new { success = false, message = "Invalid endpoint" });
+                Console.WriteLine($"Invalid endpoint: {endpoint}");
             }
         }
         catch (Exception ex)
         {
             responseString = JsonSerializer.Serialize(new { success = false, error = ex.Message });
+            Console.WriteLine($"Error processing request: {ex.Message}");
         }
 
         byte[] buffer = Encoding.UTF8.GetBytes(responseString);
@@ -147,6 +164,7 @@ public class QuizServer
         }
     }
 }
+
 
 public class Room
 {

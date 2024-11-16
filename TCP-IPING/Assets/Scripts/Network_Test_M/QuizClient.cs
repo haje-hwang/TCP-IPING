@@ -7,72 +7,66 @@ using UnityEngine;
 
 public class QuizClient : MonoBehaviour
 {
-    private string serverUrl = "http://localhost:5000";
+    private string serverUrl = "http://192.168.0.3/";
     private string nickname;
     private string roomCode;
     public TMP_InputField name;
 
-    // 닉네임 설정
-    public void SetNickname(string newNickname)
+    public void SetNickname()
     {
-        nickname = newNickname;
-        var data = "{\"nickname\":\"" + name + "\"}";
+        nickname = name.text;
+        var data = "{\"nickname\":\"" + nickname + "\"}";
         string response = SendPostRequest("/SetNickname", data);
-        Debug.Log("SetNickname Response: " + response);
+        Debug.Log($"[Client] SetNickname Response: {response}");
     }
 
-    // 방 생성
     public void CreateRoom(string newRoomCode)
     {
         roomCode = newRoomCode;
         var data = "{\"roomCode\":\"" + roomCode + "\"}";
         string response = SendPostRequest("/CreateRoom", data);
-        Debug.Log("CreateRoom Response: " + response);
+        Debug.Log($"[Client] CreateRoom Response: {response}");
     }
 
-    // 게임 시작 요청 (방장만 가능)
     public void StartGame()
     {
         if (string.IsNullOrEmpty(roomCode))
         {
-            Debug.LogError("Room code not set!");
+            Debug.LogError("[Client] Room code not set!");
             return;
         }
 
         var data = "{\"roomCode\":\"" + roomCode + "\"}";
         string response = SendPostRequest("/StartGame", data);
-        Debug.Log("StartGame Response: " + response);
+        Debug.Log($"[Client] StartGame Response: {response}");
     }
 
-    // 정답 제출
     public void SubmitAnswer(string answer)
     {
         if (string.IsNullOrEmpty(roomCode))
         {
-            Debug.LogError("Room code not set!");
+            Debug.LogError("[Client] Room code not set!");
             return;
         }
 
         var data = "{\"roomCode\":\"" + roomCode + "\", \"answer\":\"" + answer + "\"}";
         string response = SendPostRequest("/SubmitAnswer", data);
-        Debug.Log("SubmitAnswer Response: " + response);
+        Debug.Log($"[Client] SubmitAnswer Response: {response}");
     }
 
-    // 게임 종료 및 랭킹 표시
     public void EndGame()
     {
         if (string.IsNullOrEmpty(roomCode))
         {
-            Debug.LogError("Room code not set!");
+            Debug.LogError("[Client] Room code not set!");
             return;
         }
 
         var data = "{\"roomCode\":\"" + roomCode + "\"}";
         string response = SendPostRequest("/EndGame", data);
-        Debug.Log("EndGame Response: " + response);
+        Debug.Log($"[Client] EndGame Response: {response}");
     }
 
-    // POST 요청 처리 함수
     private string SendPostRequest(string endpoint, string json)
     {
         try
@@ -97,7 +91,7 @@ public class QuizClient : MonoBehaviour
         }
         catch (Exception ex)
         {
-            Debug.LogError("Request failed: " + ex.Message);
+            Debug.LogError($"[Client] Request failed: {ex.Message}");
             return null;
         }
     }
