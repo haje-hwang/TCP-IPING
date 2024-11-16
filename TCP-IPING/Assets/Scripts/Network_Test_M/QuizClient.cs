@@ -7,7 +7,7 @@ using UnityEngine;
 
 public class QuizClient : MonoBehaviour
 {
-    private string serverUrl = "http://192.168.0.3/";
+    private string serverUrl = "http://TcpIping.iptime.org:5000/";/*"http://27.113.62.74:54321/";*//*"http://192.168.0.3:54321/";*/
     private string nickname;
     private string roomCode;
     public TMP_InputField name;

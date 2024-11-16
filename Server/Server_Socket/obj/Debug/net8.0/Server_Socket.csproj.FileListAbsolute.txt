@@ -1,0 +1,15 @@
+C:\Tcp\TCP-IPING\Server\Server_Socket\bin\Debug\net8.0\Server_Socket.exe
+C:\Tcp\TCP-IPING\Server\Server_Socket\bin\Debug\net8.0\Server_Socket.deps.json
+C:\Tcp\TCP-IPING\Server\Server_Socket\bin\Debug\net8.0\Server_Socket.runtimeconfig.json
+C:\Tcp\TCP-IPING\Server\Server_Socket\bin\Debug\net8.0\Server_Socket.dll
+C:\Tcp\TCP-IPING\Server\Server_Socket\bin\Debug\net8.0\Server_Socket.pdb
+C:\Tcp\TCP-IPING\Server\Server_Socket\obj\Debug\net8.0\Server_Socket.GeneratedMSBuildEditorConfig.editorconfig
+C:\Tcp\TCP-IPING\Server\Server_Socket\obj\Debug\net8.0\Server_Socket.AssemblyInfoInputs.cache
+C:\Tcp\TCP-IPING\Server\Server_Socket\obj\Debug\net8.0\Server_Socket.AssemblyInfo.cs
+C:\Tcp\TCP-IPING\Server\Server_Socket\obj\Debug\net8.0\Server_Socket.csproj.CoreCompileInputs.cache
+C:\Tcp\TCP-IPING\Server\Server_Socket\obj\Debug\net8.0\Server_Socket.sourcelink.json
+C:\Tcp\TCP-IPING\Server\Server_Socket\obj\Debug\net8.0\Server_Socket.dll
+C:\Tcp\TCP-IPING\Server\Server_Socket\obj\Debug\net8.0\refint\Server_Socket.dll
+C:\Tcp\TCP-IPING\Server\Server_Socket\obj\Debug\net8.0\Server_Socket.pdb
+C:\Tcp\TCP-IPING\Server\Server_Socket\obj\Debug\net8.0\Server_Socket.genruntimeconfig.cache
+C:\Tcp\TCP-IPING\Server\Server_Socket\obj\Debug\net8.0\ref\Server_Socket.dll

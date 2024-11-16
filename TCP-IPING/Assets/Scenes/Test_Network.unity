@@ -2321,6 +2321,7 @@ GameObject:
   - component: {fileID: 2116208871}
   - component: {fileID: 2116208870}
   - component: {fileID: 2116208872}
+  - component: {fileID: 2116208873}
   m_Layer: 0
   m_Name: LoginManager
   m_TagString: Untagged
@@ -2373,6 +2374,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   name: {fileID: 407607792}
+--- !u!114 &2116208873
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2116208868}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 403daaa9b23d0e549ba795b4b8bb477d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  serverAddress: 192.168.0.3
+  port: 5000
 --- !u!1 &2133341624
 GameObject:
   m_ObjectHideFlags: 0
