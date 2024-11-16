@@ -14,7 +14,8 @@ public class _testClient : MonoBehaviour
     public TMP_Text uid;
     public TMP_Text nickName;
     //
-    RequestHandler handler;
+    // RequestHandler handler;
+    ClientHandler handler;
 
     User m_user;
     public void SetUser(User user)
@@ -29,9 +30,9 @@ public class _testClient : MonoBehaviour
     {
         TcpClient tcpClient = new TcpClient("127.0.0.1", PORT);
         // handler = RequestHandler.CreateAsync(m_user);
-        // handler = new Lobby.ClientHandler(tcpClient, testLobby);
+        handler = new Lobby.ClientHandler(tcpClient, testLobby);
 
-        // handler.SendMessage($"hi I'm {gameObject.name}. started in 127.0.0.1, {PORT}");
+        handler.SendMessage($"hi I'm {gameObject.name}. started in 127.0.0.1, {PORT}");
         isTestRunning = true;
         StartCoroutine(sendTestMsg());
     }
@@ -48,8 +49,8 @@ public class _testClient : MonoBehaviour
             yield return new WaitForSeconds(2.0f);
         }
     }
-    // public ClientHandler GetHandler()
-    // {
-    //     return handler;
-    // }
+    public ClientHandler GetHandler()
+    {
+        return handler;
+    }
 }
