@@ -14,7 +14,8 @@ public class QuizServer
     public static void Main(string[] args)
     {
         HttpListener listener = new HttpListener();
-        listener.Prefixes.Add("http://192.168.0.3/");
+        listener.Prefixes.Add("http://+:5000/");
+        //listener.Prefixes.Add("http://0.0.0.0:5000/");
         listener.Start();
         Console.WriteLine("Server started on http://192.168.0.3/");
 
