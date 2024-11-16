@@ -102,16 +102,22 @@ namespace Lobby
         {
             switch (packet.type)
             {
-                case PacketType.StartJoin:
+                case PacketType.__FirstJoin:
+                    break;
+                case PacketType.__LobbyData:
+                    break;
+                case PacketType.__LobbyList:
+                    break;
+                case PacketType._StartJoin:
                     //서버에 접속할 때
                     if(packet.id == 0)
                         DefineUser();
                     break;
-                case PacketType.EndJoin:
+                case PacketType._EndJoin:
                     //서버에서 퇴장
                     this.Close();
                     break;
-                case PacketType.CreateLobby:
+                case PacketType._CreateLobby:
                     //로비 생성
                     string roomName = (string)packet.data;
                     if(string.IsNullOrEmpty(roomName))
@@ -119,22 +125,22 @@ namespace Lobby
 
                     SendLobbyData(server.CreateLobby(roomName, 4, packet.id));
                     break;
-                case PacketType.JoinLobby:
+                case PacketType._JoinLobby:
                     //packet.data로 LobbyID를 받기
                     //이후 Lobby에 해당 유저 넣기
                     server.JoinLobby((UID)packet.data, this);
                     break;
-                case PacketType.LeaveLobby:
+                case PacketType._LeaveLobby:
                     //packet.data로 LobbyID를 받기
                     //이후 Lobby에 해당 유저 삭제
                     server.LeaveLobby((UID)packet.data, this);
                     break;
-                case PacketType.Answer:
+                case PacketType._Answer:
                     ReceivedAnswer();
                     break;
-                case PacketType.Message:
+                case PacketType._SendLobbyMessege:
                     break;
-                case PacketType.UpdateUserData:
+                case PacketType._UpdateUserData:
                     User user = (User)packet.data;
                     UserList.Instance.UpdateUser(user);
                     break;
