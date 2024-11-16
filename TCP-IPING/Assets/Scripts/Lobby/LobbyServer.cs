@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Linq;
+using System.Collections.Concurrent;
 
 namespace Lobby
 {
@@ -10,6 +11,7 @@ namespace Lobby
     {
         public bool isRunning = true;
         private TcpListener listener;
+        private ConcurrentDictionary<UID, ClientHandler> clientMap = new();
         private List<ClientHandler> clients = new List<ClientHandler>();
         private List<GameLobby> lobbies = new List<GameLobby>();
         //Events
@@ -53,10 +55,10 @@ namespace Lobby
             }
         }
 
-        public GameLobby CreateLobby(string name, int maxPlayers)
+        public GameLobby CreateLobby(string name, int maxPlayers, UID host)
         {
             UID lobby_uid = UID.NewUID();
-            LobbyData data = new LobbyData(lobby_uid, name, maxPlayers);
+            LobbyData data = new LobbyData(lobby_uid, name, maxPlayers, host);
             GameLobby lobby = new GameLobby(data);
             lobbies.Add(lobby);
             return lobby;
@@ -64,17 +66,17 @@ namespace Lobby
 
 
         // 기타 로비 관리 메서드들...
-        GameLobby FindLobby(uint uid)
+        GameLobby FindLobby(UID uid)
         {
             return lobbies.FirstOrDefault(lobby => lobby.data.uid == uid);
         } 
-        public bool JoinLobby(uint lobbyCode, ClientHandler client)
+        public bool JoinLobby(UID lobbyCode, ClientHandler client)
         {
             GameLobby lobby = FindLobby(lobbyCode);
             lobby.AddPlayer(client);
             return false;
         }
-        public bool LeaveLobby(uint lobbyCode, ClientHandler client)
+        public bool LeaveLobby(UID lobbyCode, ClientHandler client)
         {
             GameLobby lobby = FindLobby(lobbyCode);
             lobby.RemovePlayer(client);

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Lobby;
 using UnityEngine;
 using System.Threading;
+using System.Linq;
 
 public class _testServerManager : MonoBehaviour
 {
@@ -20,7 +21,7 @@ public class _testServerManager : MonoBehaviour
         }
 
 
-        GameLobby testLobby = testServer.CreateLobby("testLobby", 4);
+        GameLobby testLobby = testServer.CreateLobby("testLobby", 4, UID.Empty());
         foreach(_testClient client in testClients)
         {
             if(!testLobby.AddPlayer(client.GetHandler())) 

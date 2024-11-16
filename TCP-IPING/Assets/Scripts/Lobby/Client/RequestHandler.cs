@@ -3,20 +3,24 @@ using System.IO;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 
-public class RequestHandler
+public class RequestHandler //: IRequest
 {
+    static User m_user;
     private bool isRunning;
     private string serverAddress = "127.0.0.1"; // 서버 IP 주소 (로컬호스트)
     private int port = 8080; // 서버 포트 번호
+    #nullable enable
     private StreamReader? _reader;
     private StreamWriter? _writer;
+    #nullable disable
 
     // private 생성자로 외부에서 직접 호출하지 못하도록 제한
     private RequestHandler() { }
 
     // 비동기 초기화를 위한 팩토리 메서드
-    public static async Task<RequestHandler> CreateAsync()
+    public static async Task<RequestHandler> CreateAsync(User user)
     {
+        m_user = user;
         var handler = new RequestHandler();
         await handler.Start();
         return handler;
@@ -41,7 +45,7 @@ public class RequestHandler
                     _writer = new StreamWriter(stream, Constants.Packet.encoding) { AutoFlush = true };
 
                     // 수신 작업 실행
-                    await ReceiveMessagesAsync();
+                    await ReceivePacketAsync();
                 }
             }
         }
@@ -56,18 +60,31 @@ public class RequestHandler
     /// <summary>
     /// 서버로 메시지를 전송하는 함수
     /// </summary>
-    private async Task SendMessagesAsync(string message)
+    public async Task SendPacketAsync(IPacket Packet)
     {
         if (_writer != null)
         {
-            await _writer.WriteLineAsync(message); // 서버로 메시지 전송
+            try
+            {
+                string jsonPacket = PacketHelper.Serialize(Packet);
+                await _writer.WriteLineAsync(jsonPacket);
+            }
+            catch (System.Exception)
+            {
+                
+                throw;
+            }
+        }
+        else
+        {
+            UnityEngine.Debug.Log("Do RequestHandler.CreateAsync(User) First!");
         }
     }
 
     /// <summary>
     /// 서버로부터 메시지를 수신하는 함수
     /// </summary>
-    private async Task ReceiveMessagesAsync()
+    private async Task ReceivePacketAsync()
     {
         while (isRunning)
         {
@@ -77,7 +94,7 @@ public class RequestHandler
                 {
                     string? response = await _reader.ReadLineAsync(); // 서버로부터 메시지 수신
                     IPacket packet = PacketHelper.Deserialize(response);
-
+                    ProcessPacket(packet);
                 }
             }
             catch (Exception ex)
@@ -89,21 +106,35 @@ public class RequestHandler
         }
     }
 
-        /// <summary>
-        /// 받은 string을 패킷으로 Deserialize
-        /// </summary>
-        /// <param name="jsonPacket"></param>
-        private void ProcessPacket(IPacket packet)
+    private void ProcessPacket(IPacket packet)
+    {
+        try
         {
-            try
+            switch(packet.type)
             {
-                
+                case PacketType._DefineUser:
+                    MyUserData((User)packet.data);
+                    break;
+                case PacketType._Quiz:
+                    break;
+                case PacketType._LobbyData:
+                    break;
             }
-            catch (System.Exception)
-            {
-                
-                throw;
-            }  
         }
+        catch (System.Exception)
+        {
+            throw;
+        }  
+    }
+
+    void MyUserData(User user)
+    {
+        m_user = user;
+    }
+
+    void GetQuiz(Question question)
+    {
+        
+    }
     
 }

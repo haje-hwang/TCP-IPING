@@ -2,11 +2,15 @@ using System;
 
 public class User
 {
-    public uint id {get; private set;}
+    public UID id {get; private set;}
     public string nickName;
-    public User(uint uid, string name)
+    public User(UID uid, string name)
     {
         id = uid;
         nickName = name;
+    }
+    public User Empty()
+    {
+        return new User(UID.Empty(), "Anonnymous");
     }
 }
