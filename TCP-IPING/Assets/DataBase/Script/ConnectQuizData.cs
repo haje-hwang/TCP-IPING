@@ -1,25 +1,25 @@
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using System.Collections.Generic;
 using UnityEngine;
+using Newtonsoft.Json; // Json.NET 라이브러리 사용
 
 public class ConnectQuiz : MonoBehaviour
 {
     private IMongoDatabase _database;
     private IMongoCollection<BsonDocument> _quizCollection;
-    public Quiz quiz;
+    public List<Question> questions;
 
     void Start()
     {
-        // Quiz 초기화
-        quiz = new Quiz();
-        quiz.Initialize(); // 리스트 초기화
+        // 질문 리스트 초기화
+        questions = new List<Question>();
+
         // MongoDB 데이터베이스 연결
         ConnectToDatabase("Quiz");
 
-        // 질문 데이터 가져오기
-        FetchAllQuestions();
+        // JSON으로 질문 데이터 가져오기
+        FetchAllQuestionsAsJson();
     }
 
     private void ConnectToDatabase(string databaseName)
@@ -40,7 +40,7 @@ public class ConnectQuiz : MonoBehaviour
         }
     }
 
-    private void FetchAllQuestions()
+    private void FetchAllQuestionsAsJson()
     {
         if (_quizCollection == null)
         {
@@ -48,43 +48,40 @@ public class ConnectQuiz : MonoBehaviour
             return;
         }
 
-        UnityEngine.Debug.Log("퀴즈 컬렉션에서 데이터를 가져옵니다...");
+        UnityEngine.Debug.Log("퀴즈 컬렉션에서 데이터를 JSON 형식으로 가져옵니다...");
 
-        // MongoDB에서 모든 문서 가져오기
+        // MongoDB에서 모든 문서를 JSON 문자열로 가져오기
         var documents = _quizCollection.Find(Builders<BsonDocument>.Filter.Empty).ToList();
-
-        if (documents == null || documents.Count == 0)
-        {
-            UnityEngine.Debug.LogWarning("퀴즈 데이터가 없습니다.");
-            return;
-        }
 
         foreach (var doc in documents)
         {
             try
             {
-                // BsonDocument를 Question으로 변환
-                var question = doc.ToObject<Question>();
+                // BsonDocument를 JSON 문자열로 변환
+                string json = doc.ToJson();
 
-                if (quiz.questions == null)
+                // JSON 문자열을 Question 객체로 변환 (Newtonsoft.Json 사용)
+                var question = JsonConvert.DeserializeObject<Question>(json);
+
+                if (questions == null)
                 {
-                    UnityEngine.Debug.LogError("quiz.questions 리스트가 초기화되지 않았습니다.");
+                    UnityEngine.Debug.LogError("questions 리스트가 초기화되지 않았습니다.");
                     return;
                 }
 
                 // 질문 리스트에 추가
-                quiz.questions.Add(question);
+                questions.Add(question);
             }
             catch (System.Exception ex)
             {
-                UnityEngine.Debug.LogError($"문서 처리 중 오류 발생: {ex.Message}\n{ex.StackTrace}");
+                UnityEngine.Debug.LogError($"JSON 처리 중 오류 발생: {ex.Message}\n{ex.StackTrace}");
             }
         }
 
-        UnityEngine.Debug.Log($"총 {quiz.questions.Count}개의 질문을 가져왔습니다.");
+        UnityEngine.Debug.Log($"총 {questions.Count}개의 질문을 JSON 형식으로 처리했습니다.");
 
         // 확인용 질문 출력
-        foreach (var q in quiz.questions)
+        foreach (var q in questions)
         {
             UnityEngine.Debug.Log($"ID: {q.id}");
             UnityEngine.Debug.Log($"Question: {q.question}");
@@ -94,19 +91,5 @@ public class ConnectQuiz : MonoBehaviour
             UnityEngine.Debug.Log($"Difficulty: {q.difficulty}");
             UnityEngine.Debug.Log("---------------");
         }
-    }
-}
-
-// BsonDocument를 특정 객체로 변환하는 확장 메서드
-public static class BsonDocumentExtensions
-{
-    public static T ToObject<T>(this BsonDocument document)
-    {
-        // _id를 무시하고 역직렬화
-        if (document.Contains("_id"))
-        {
-            document.Remove("_id");
-        }
-        return BsonSerializer.Deserialize<T>(document);
     }
 }
