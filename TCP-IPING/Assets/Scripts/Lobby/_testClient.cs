@@ -8,6 +8,7 @@ using UnityEngine;
 
 public class _testClient : MonoBehaviour
 {
+    [SerializeField] string IP = "127.0.0.1";
     [SerializeField] int PORT;
     public bool isTestRunning = true;
     //
@@ -20,18 +21,31 @@ public class _testClient : MonoBehaviour
     User m_user;
     public void SetUser(User user)
     {
-        m_user = user;
-        string idText = user.id.ToString();
-        uid.SetText(idText);
-        nickName.text = user.nickName;
+        if (nickName != null)
+            nickName.text = user.nickName;
+        else
+            Debug.LogWarning("nickName is not assigned.");
+
+        if(uid != null)
+        {
+            string idText = user.id.ToString();
+            uid.SetText(idText); 
+        }
+        else
+            Debug.LogWarning("uid is not assigned.");
+
+
+        if(user!= null)
+            m_user = user;
+        else
+            Debug.LogWarning("user is null");
     }
 
 
     public void Connect2Server(Lobby.LobbyServer testLobby)
     {
-        SetUser(new User(Guid.Empty, "aaa"));
-        TcpClient tcpClient = new TcpClient("127.0.0.1", PORT);
-        handler = new RequestHandler(m_user, tcpClient);
+        TcpClient tcpClient = new TcpClient(IP, PORT);
+        handler = new RequestHandler(null, tcpClient);
         // handler = new Lobby.ClientHandler(tcpClient, testLobby);
 
         // handler.SendPacket($"hi I'm {gameObject.name}. started in 127.0.0.1, {PORT}");

@@ -20,11 +20,17 @@ public class RequestHandler : IRequest
     private static SemaphoreSlim packetSemaphore = new SemaphoreSlim(0); // 초기화 시 0, 즉 대기 상태
 
     // private 생성자로 외부에서 직접 호출하지 못하도록 제한
-    public RequestHandler(User user, TcpClient tcpClient) 
+    public RequestHandler(User? user, TcpClient tcpClient) 
     { 
-        m_user = user;
+        if(user != null)
+        {
+            m_user = user;
+            DebugMsg($"RequestHandler Created, {user.id}: {user.nickName}");
+        }
+        else
+            DebugMsg($"RequestHandler Created");
+            
         m_tcpClient = tcpClient;
-        DebugMsg($"RequestHandler Created, {user.id}: {user.nickName}");
           _ = Task.Run(() => Start());  // Start는 백그라운드 스레드에서 실행됨
     }
 
@@ -195,6 +201,7 @@ public class RequestHandler : IRequest
     /// <returns></returns>
     public async Task<object> SendAndWaitPacketAsync(IPacket senderPacket, int timeoutSeconds = 3)
     {
+        DebugMsg($"Client Sent packet:{senderPacket.type}");
         using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(timeoutSeconds));
         IPacket responsePacket = null;  // 응답 패킷을 저장할 변수
 

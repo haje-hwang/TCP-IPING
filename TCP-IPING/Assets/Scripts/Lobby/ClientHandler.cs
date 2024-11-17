@@ -139,6 +139,7 @@ namespace Lobby
             {
                 try
                 {
+                    DebugMsg($"Client Sent packet:{packet.type}");
                     // old one
                     string jsonPacket = PacketHelper.Serialize(packet);
                     byte[] buffer = Constants.Packet.encoding.GetBytes(jsonPacket);
@@ -201,7 +202,7 @@ namespace Lobby
                     break;
                 case PacketType._StartJoin:
                     //서버에 접속할 때
-                    if(packet.id == 0)
+                    if(packet.id == Guid.Empty)
                         DefineUser();
                     break;
                 case PacketType._EndJoin:
