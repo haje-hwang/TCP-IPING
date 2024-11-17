@@ -11,19 +11,20 @@ public class UserList : ISingleton<UserList>
     private IMongoCollection<BsonDocument> _userCollection; // MongoDB 컬렉션
     private ConcurrentDictionary<Guid, User> userMap; // 유저 정보를 저장할 ConcurrentDictionary
 
-    public UserList()
+    public void Start()
     {
         // ConcurrentDictionary 초기화
         userMap = new ConcurrentDictionary<Guid, User>();
-
-        // MongoDB 데이터베이스 연결
-        ConnectToDatabase("User");
-
+        ConnectToDatabase();
         // MongoDB에서 모든 유저 정보 JSON 형식으로 로드
         FetchAllUsersFromDatabase();
     }
+    public UserList()
+    {
+        
+    }
 
-    private void ConnectToDatabase(string databaseName)
+    private void ConnectToDatabase()
     {
         if (MongoDBAccess.Instance == null || MongoDBAccess.Instance.Client == null)
         {
@@ -31,10 +32,10 @@ public class UserList : ISingleton<UserList>
             return;
         }
 
-        _database = MongoDBAccess.Instance.Client.GetDatabase(databaseName);
+        _database = MongoDBAccess.Instance.Client.GetDatabase("User");
         if (_database == null)
         {
-            UnityEngine.Debug.LogError($"데이터베이스 '{databaseName}'를 찾을 수 없습니다!");
+            UnityEngine.Debug.LogError($"데이터베이스 User를 찾을 수 없습니다!");
             return;
         }
 
@@ -91,7 +92,10 @@ public class UserList : ISingleton<UserList>
         Guid id = Guid.NewGuid();
         while (userMap.ContainsKey(id)) { id = Guid.NewGuid(); } // userID 중복 방지
 
+        // 새 User 객체 생성
         User newUser = new User(id, "Anonymous");
+
+        // userMap에 추가
         userMap.TryAdd(newUser.id, newUser);
 
         // MongoDB에 새 유저 저장
