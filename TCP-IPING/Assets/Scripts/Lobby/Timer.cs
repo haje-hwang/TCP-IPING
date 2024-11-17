@@ -10,10 +10,11 @@ public class RoomTimer : MonoBehaviour
     public Text timerText; // 타이머 표시할 Text UI
 
     private bool timerActive = false;
-   
+    private int timerCount = 0;
 
     public GameObject questionPanel; // 질문 패널
     public GameObject[] answerButtons; // 답변 버튼들
+    public GameObject rankingPanel; //랭킹 패널
 
     void Start()
     {
@@ -21,6 +22,8 @@ public class RoomTimer : MonoBehaviour
         timer = timerDuration;
         UpdateTimerText();
         StartTimer(); // 타이머 시작
+
+        rankingPanel.SetActive(false);
     }
 
     void Update()
@@ -84,5 +87,11 @@ public class RoomTimer : MonoBehaviour
 
         // 타이머 재설정 및 시작
         ResetTimer();
+
+        timerCount++;
+        if (timerCount >= 5)
+        {
+            rankingPanel.SetActive(true);  // 랭킹 패널을 보이게 함
+        }
     }
 }
