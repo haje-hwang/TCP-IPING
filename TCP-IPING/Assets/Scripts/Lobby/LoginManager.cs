@@ -10,6 +10,7 @@ public class LoginManager : MonoBehaviour
     public Button RoomJoin;    // 방 입장 버튼
     public TMP_InputField RoomJoinInput;
     public GameObject panel;
+    public Button RoomJoinX;
 
     private string playerNickname;
 
@@ -45,5 +46,13 @@ public class LoginManager : MonoBehaviour
     void OnJoinRoom()
     {
         panel.SetActive(true);  // Panel을 다시 보이게 함
+        if (RoomJoinX != null)
+        {
+            RoomJoinX.onClick.AddListener(() =>
+            {
+                RoomJoinX.onClick.RemoveAllListeners();
+                panel.SetActive(false); // 패널 숨김
+            });
+        }
     }
 }
