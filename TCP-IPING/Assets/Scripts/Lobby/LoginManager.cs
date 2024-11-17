@@ -58,7 +58,7 @@ public class LoginManager : MonoBehaviour
 
     public void OnRoomJoinX()
     {
-        RoomJoinX.onClick.RemoveAllListeners();
+ 
         panel.SetActive(false); // 패널 숨김
     }
 
