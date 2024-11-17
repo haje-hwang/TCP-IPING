@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using Newtonsoft.Json; // Json.NET 라이브러리 사용
 using UnityEngine;
 using System;
+using System.Diagnostics;
 
 public class UserList : ISingleton<UserList>
 {
@@ -103,7 +104,22 @@ public class UserList : ISingleton<UserList>
 
         return newUser;
     }
+    public User CreateNewUser(string name)
+    {
+        Guid id = Guid.NewGuid();
+        while (userMap.ContainsKey(id)) { id = Guid.NewGuid(); } // userID 중복 방지
 
+        // 새 User 객체 생성
+        User newUser = new User(id, name);
+
+        // userMap에 추가
+        userMap.TryAdd(newUser.id, newUser);
+
+        // MongoDB에 새 유저 저장
+        SaveUserToDatabase(newUser);
+
+        return newUser;
+    }
     // 유저 정보를 MongoDB에 저장
     private void SaveUserToDatabase(User user)
     {
@@ -184,5 +200,22 @@ public class UserList : ISingleton<UserList>
 
         return isRemoved;
     }
+    public void DeleteAllUsers()
+    {
+        // userMap 비우기
+        userMap.Clear();
+
+        // MongoDB에서 모든 유저 삭제
+        if (_userCollection != null)
+        {
+            _userCollection.DeleteMany(Builders<BsonDocument>.Filter.Empty); // 모든 문서 삭제
+            UnityEngine.Debug.Log("모든 유저가 삭제되었습니다.");
+        }
+        else
+        {
+            UnityEngine.Debug.LogError("유저 컬렉션이 초기화되지 않았습니다.");
+        }
+    }
+
 }
 
