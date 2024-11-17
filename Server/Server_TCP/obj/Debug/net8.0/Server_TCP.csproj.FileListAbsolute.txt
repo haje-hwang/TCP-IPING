@@ -13,3 +13,6 @@ C:\CodeFolder\Github\TCP-IPING\Server\Server_TCP\obj\Debug\net8.0\refint\Server_
 C:\CodeFolder\Github\TCP-IPING\Server\Server_TCP\obj\Debug\net8.0\Server_TCP.pdb
 C:\CodeFolder\Github\TCP-IPING\Server\Server_TCP\obj\Debug\net8.0\Server_TCP.genruntimeconfig.cache
 C:\CodeFolder\Github\TCP-IPING\Server\Server_TCP\obj\Debug\net8.0\ref\Server_TCP.dll
+C:\CodeFolder\Github\TCP-IPING\Server\Server_TCP\bin\Debug\net8.0\Newtonsoft.Json.dll
+C:\CodeFolder\Github\TCP-IPING\Server\Server_TCP\obj\Debug\net8.0\Server_TCP.csproj.AssemblyReference.cache
+C:\CodeFolder\Github\TCP-IPING\Server\Server_TCP\obj\Debug\net8.0\Server_TCP.csproj.Up2Date

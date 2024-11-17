@@ -26,7 +26,7 @@ public class RequestHandler : IRequest
             DebugMsg($"RequestHandler Created");
             
         m_client = tcpClient;
-          _ = Task.Run(() => Start());  // Start는 백그라운드 스레드에서 실행됨
+         _ = Task.Run(() => Start());  // Start는 백그라운드 스레드에서 실행됨
     }
     ~RequestHandler()
     {
@@ -63,13 +63,16 @@ public class RequestHandler : IRequest
         {
             m_stream = m_client.GetStream();
             // 수신 작업 실행
-            await ReceivePacketAsync(m_stream);
+            _ = Task.Run(() => ReceivePacketAsync(m_stream));
+
+            //User가 정의되지 않은 첫 접속이면, User정보 받기
+            if(m_user == null)
+                m_user = await FirstJoin();
         }
         catch (Exception ex)
         {
             DebugMsg($"오류 발생: {ex.Message}");
         }
-        Disconnect();
         DebugMsg("클라이언트 종료.");
     }
     public async Task ReceivePacketAsync(NetworkStream stream)
@@ -127,6 +130,7 @@ public class RequestHandler : IRequest
         {
             DebugWaringMsg($"Error reading from server: {ex.Message}");
         }
+        Disconnect();
     }
     public async Task SendMessegeAsync(string message)
     {
