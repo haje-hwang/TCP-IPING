@@ -30,14 +30,13 @@ namespace Lobby
             UnityEngine.Debug.Log(msg);
             // Console.WriteLine(msg);
         }
-
-        public async Task Start()
-        {
-            await Task.Run(() => HandleClient());
-        }
         public void Close()
         {
             isRunning = false;
+        }
+        public async Task Start()
+        {
+            await Task.Run(() => HandleClient());
         }
         private async Task HandleClient()
         {
@@ -76,18 +75,19 @@ namespace Lobby
         {
             try
             {
-                byte[] lengthBuffer = new byte[4];
+                // byte[] lengthBuffer = new byte[4];
                 while (isRunning)
                 {
+                    /*
                     // 1. 먼저 4바이트의 길이 정보를 읽어옴
-                    int bytesRead = await reader.BaseStream.ReadAsync(lengthBuffer, 0, lengthBuffer.Length);
-                    if (bytesRead != 4)
+                    int bytesRead = 0;
+                    while (bytesRead < 4)   // 계속해서 4바이트를 읽을 때까지 시도
                     {
-                        DebugMsg("패킷 길이 읽기 실패: 연결이 끊어졌거나 잘못된 데이터.");
-                        break;
+                        int readResult = await reader.BaseStream.ReadAsync(lengthBuffer, bytesRead, 4 - bytesRead);
+                        bytesRead += readResult;
                     }
 
-                    int packetLength = BitConverter.ToInt32(lengthBuffer, 0);
+                    int packetLength = BitConverter.ToInt32(lengthBuffer, 0);  //일반적으로 빅 엔디안 사용됨
 
                     // 2. 패킷 길이에 따라 데이터를 읽음
                     byte[] dataBuffer = new byte[packetLength];
@@ -100,10 +100,10 @@ namespace Lobby
 
                         if (bytesRead == 0)
                         {
-                            DebugMsg("패킷 데이터 읽기 실패: 연결이 끊어졌거나 잘못된 데이터.");
+                            DebugMsg($"패킷 데이터 읽기 실패: 연결이 끊어졌거나 잘못된 데이터. bytesRead should 0 but :{bytesRead}");
                             break;
                         }
-                        
+
                         totalBytesRead += bytesRead;
                     }
 
@@ -119,6 +119,13 @@ namespace Lobby
                     {
                         DebugMsg("패킷 크기 불일치: 수신된 데이터가 예상보다 작습니다.");
                     }
+                    */
+                    string? request = await reader.ReadLineAsync(); // 서버로부터 메시지 수신
+                    DebugMsg($"request: {request}");
+                    String2Packet(request);
+         
+                    // string jsonPacket = Constants.Packet.encoding.GetString(dataBuffer);
+                    // ProcessPacket(jsonPacket);
                 }
             }
             catch (Exception ex)
@@ -132,23 +139,23 @@ namespace Lobby
             {
                 try
                 {
-                    /*old one
+                    // old one
                     string jsonPacket = PacketHelper.Serialize(packet);
                     byte[] buffer = Constants.Packet.encoding.GetBytes(jsonPacket);
                     await stream.WriteAsync(buffer, 0, buffer.Length);
-                    */
+                    
 
-                    string jsonPacket = PacketHelper.Serialize(packet);
-                    byte[] data = Constants.Packet.encoding.GetBytes(jsonPacket);
-                    int length = data.Length;
+                    // string jsonPacket = PacketHelper.Serialize(packet);
+                    // byte[] data = Constants.Packet.encoding.GetBytes(jsonPacket);
+                    // int length = data.Length;
 
-                    // 패킷 길이(4바이트)를 먼저 보냄
-                    byte[] lengthBytes = BitConverter.GetBytes(length);
-                    await _writer.BaseStream.WriteAsync(lengthBytes, 0, lengthBytes.Length);
+                    // // 패킷 길이(4바이트)를 먼저 보냄
+                    // byte[] lengthBytes = BitConverter.GetBytes(length);
+                    // await _writer.BaseStream.WriteAsync(lengthBytes, 0, lengthBytes.Length);
 
-                    // 메시지를 전송
-                    await _writer.WriteAsync(jsonPacket);
-                    await _writer.FlushAsync(); // 스트림 비우기
+                    // // 메시지를 전송
+                    // await _writer.WriteAsync(jsonPacket);
+                    // await _writer.FlushAsync(); // 스트림 비우기
                 }
                 catch (System.Exception)
                 {
@@ -166,7 +173,7 @@ namespace Lobby
         /// 받은 string을 패킷으로 Deserialize
         /// </summary>
         /// <param name="jsonPacket"></param>
-        private void ProcessPacket(string jsonPacket)
+        private void String2Packet(string jsonPacket)
         {
             try
             {
@@ -186,6 +193,7 @@ namespace Lobby
             switch (packet.type)
             {
                 case PacketType.__FirstJoin:
+                    DefineUser();
                     break;
                 case PacketType.__LobbyData:
                     break;
@@ -211,12 +219,12 @@ namespace Lobby
                 case PacketType._JoinLobby:
                     //packet.data로 LobbyID를 받기
                     //이후 Lobby에 해당 유저 넣기
-                    server.JoinLobby((UID)packet.data, this);
+                    server.JoinLobby((Guid)packet.data, this);
                     break;
                 case PacketType._LeaveLobby:
                     //packet.data로 LobbyID를 받기
                     //이후 Lobby에 해당 유저 삭제
-                    server.LeaveLobby((UID)packet.data, this);
+                    server.LeaveLobby((Guid)packet.data, this);
                     break;
                 case PacketType._Answer:
                     ReceivedAnswer();
@@ -238,17 +246,17 @@ namespace Lobby
         public void DefineUser()
         {
             User newUser = UserList.Instance.CreateNewUser();
-            IPacket packet = new(PacketType.__FirstJoin, newUser, UID.Empty());
+            IPacket packet = new(PacketType.__FirstJoin, newUser, Guid.Empty);
             SendPacketAsync(packet);
         }
         public void SendLobbyList(List<Lobby.LobbyData> lobbyList)
         {
-            IPacket packet = new(PacketType.__FirstJoin, lobbyList, UID.Empty());
+            IPacket packet = new(PacketType.__FirstJoin, lobbyList, Guid.Empty);
             SendPacketAsync(packet);
         }
         public void SendLobbyData(LobbyData lobbyData)
         {
-            IPacket packet = new(PacketType.__LobbyData, lobbyData, UID.Empty());
+            IPacket packet = new(PacketType.__LobbyData, lobbyData, Guid.Empty);
             SendPacketAsync(packet);
         }
         //단방향 broadcasting

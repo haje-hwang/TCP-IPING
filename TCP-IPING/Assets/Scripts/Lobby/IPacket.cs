@@ -43,9 +43,9 @@ public enum PacketType
 public class IPacket    //상속해서 "data"부분을 override하고 무슨 데이터인지 PacketType으로 표시해서 전송하기
 {
     public PacketType type { get; set; } // 패킷의 유형
-    public UID id { get; set; } //보내는 유저의(혹은 lobby)의 id. 0은 미정일때. 1은 서버에서 보냄
+    public Guid id { get; set; } //보내는 유저의(혹은 lobby)의 id. 0은 미정일때. 1은 서버에서 보냄
     public object data { get; set; }     // 전송할 데이터
-    public IPacket(PacketType type, object data, UID id)
+    public IPacket(PacketType type, object data, Guid id)
     {
         this.type = type;
         this.data = data;

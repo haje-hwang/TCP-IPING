@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Net.Sockets;
+using System;
 using Lobby;
 using TMPro;
 using UnityEditor.PackageManager.Requests;
@@ -14,33 +15,30 @@ public class _testClient : MonoBehaviour
     public TMP_Text uid;
     public TMP_Text nickName;
     //
-    // RequestHandler handler;
-    ClientHandler handler;
+    RequestHandler handler;
 
     User m_user;
     public void SetUser(User user)
     {
         m_user = user;
-        uid.text = user.id.ToString();
+        string idText = user.id.ToString();
+        uid.SetText(idText);
         nickName.text = user.nickName;
     }
 
 
     public void Connect2Server(Lobby.LobbyServer testLobby)
     {
+        SetUser(new User(Guid.Empty, "aaa"));
         TcpClient tcpClient = new TcpClient("127.0.0.1", PORT);
-        // handler = RequestHandler.CreateAsync(m_user);
-        handler = new Lobby.ClientHandler(tcpClient, testLobby);
+        handler = new RequestHandler(m_user, tcpClient);
+        // handler = new Lobby.ClientHandler(tcpClient, testLobby);
 
         // handler.SendPacket($"hi I'm {gameObject.name}. started in 127.0.0.1, {PORT}");
-        isTestRunning = true;
-        StartCoroutine(sendTestMsg());
-    }
-    void Start()
-    {
         
+        isTestRunning = true;
+        // StartCoroutine(sendTestMsg());
     }
-
     IEnumerator sendTestMsg()
     {
         while (isTestRunning)
@@ -49,8 +47,12 @@ public class _testClient : MonoBehaviour
             yield return new WaitForSeconds(2.0f);
         }
     }
-    public ClientHandler GetHandler()
+    public RequestHandler GetHandler()
     {
         return handler;
+    }
+    public async void button4test()
+    {
+        SetUser(await handler.FirstJoin());
     }
 }

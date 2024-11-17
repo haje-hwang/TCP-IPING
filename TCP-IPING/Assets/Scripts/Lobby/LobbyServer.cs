@@ -11,7 +11,7 @@ namespace Lobby
     {
         public bool isRunning = true;
         private TcpListener listener;
-        private ConcurrentDictionary<UID, ClientHandler> clientMap = new();
+        private ConcurrentDictionary<Guid, ClientHandler> clientMap = new();
         private List<ClientHandler> clients = new List<ClientHandler>();
         private List<GameLobby> lobbies = new List<GameLobby>();
         //Events
@@ -55,9 +55,9 @@ namespace Lobby
             }
         }
 
-        public GameLobby CreateLobby(string name, int maxPlayers, UID host)
+        public GameLobby CreateLobby(string name, int maxPlayers, Guid host)
         {
-            UID lobby_uid = UID.NewUID();
+            Guid lobby_uid = Guid.NewGuid();
             LobbyData data = new LobbyData(lobby_uid, name, maxPlayers, host);
             GameLobby lobby = new GameLobby(data);
             lobbies.Add(lobby);
@@ -66,17 +66,17 @@ namespace Lobby
 
 
         // 기타 로비 관리 메서드들...
-        GameLobby FindLobby(UID uid)
+        GameLobby FindLobby(Guid uid)
         {
             return lobbies.FirstOrDefault(lobby => lobby.data.uid == uid);
         } 
-        public bool JoinLobby(UID lobbyCode, ClientHandler client)
+        public bool JoinLobby(Guid lobbyCode, ClientHandler client)
         {
             GameLobby lobby = FindLobby(lobbyCode);
             lobby.AddPlayer(client);
             return false;
         }
-        public bool LeaveLobby(UID lobbyCode, ClientHandler client)
+        public bool LeaveLobby(Guid lobbyCode, ClientHandler client)
         {
             GameLobby lobby = FindLobby(lobbyCode);
             lobby.RemovePlayer(client);

@@ -160,9 +160,9 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: 100, y: 0}
-  m_SizeDelta: {x: 200, y: 0}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 50, y: 0}
+  m_SizeDelta: {x: 300, y: 0}
+  m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &119466449
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -190,10 +190,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Padding:
-    m_Left: 0
-    m_Right: 0
-    m_Top: 0
-    m_Bottom: 0
+    m_Left: 8
+    m_Right: 8
+    m_Top: 8
+    m_Bottom: 8
   m_ChildAlignment: 0
   m_Spacing: 16
   m_ChildForceExpandWidth: 0
@@ -272,6 +272,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PORT: 8080
   isTestRunning: 0
+  uid: {fileID: 0}
+  nickName: {fileID: 0}
 --- !u!4 &209355996
 Transform:
   m_ObjectHideFlags: 0
@@ -333,6 +335,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PORT: 8080
   isTestRunning: 0
+  uid: {fileID: 1257508492}
+  nickName: {fileID: 1485540353}
 --- !u!1 &519505170
 GameObject:
   m_ObjectHideFlags: 0
@@ -923,7 +927,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1280933593}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 502506903}
+        m_TargetAssemblyTypeName: _testClient, Assembly-CSharp
+        m_MethodName: button4test
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1280933593
 MonoBehaviour:
   m_ObjectHideFlags: 0

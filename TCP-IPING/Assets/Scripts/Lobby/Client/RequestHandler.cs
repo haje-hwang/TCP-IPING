@@ -9,10 +9,9 @@ using System.Diagnostics;
 
 public class RequestHandler : IRequest
 {
+    public bool isRunning;
     static User m_user;
-    private bool isRunning;
-    private string serverAddress = "127.0.0.1"; // 서버 IP 주소 (로컬호스트)
-    private int port = 8080; // 서버 포트 번호
+    TcpClient m_tcpClient;
     #nullable enable
     private StreamReader? _reader;
     private StreamWriter? _writer;
@@ -21,16 +20,22 @@ public class RequestHandler : IRequest
     private static SemaphoreSlim packetSemaphore = new SemaphoreSlim(0); // 초기화 시 0, 즉 대기 상태
 
     // private 생성자로 외부에서 직접 호출하지 못하도록 제한
-    private RequestHandler() { }
-
-    // 비동기 초기화를 위한 팩토리 메서드
-    public static async Task<RequestHandler> CreateAsync(User user)
-    {
+    public RequestHandler(User user, TcpClient tcpClient) 
+    { 
         m_user = user;
-        var handler = new RequestHandler();
-        await handler.Start();
-        return handler;
+        m_tcpClient = tcpClient;
+        DebugMsg($"RequestHandler Created, {user.id}: {user.nickName}");
+          _ = Task.Run(() => Start());  // Start는 백그라운드 스레드에서 실행됨
     }
+
+    // // 비동기 초기화를 위한 팩토리 메서드
+    // public static async Task<RequestHandler> CreateAsync(User user)
+    // {
+    //     m_user = user;
+    //     var handler = new RequestHandler();
+    //     await handler.Start();
+    //     return handler;
+    // }
 
     private void DebugMsg(string msg)
     {
@@ -45,20 +50,13 @@ public class RequestHandler : IRequest
 
         try
         {
-            using (TcpClient client = new TcpClient())
+            using (NetworkStream stream = m_tcpClient.GetStream())
             {
-                // 서버에 연결
-                await client.ConnectAsync(serverAddress, port);
-                DebugMsg($"서버에 연결됨: {serverAddress}:{port}");
+                _reader = new StreamReader(stream, Constants.Packet.encoding);
+                _writer = new StreamWriter(stream, Constants.Packet.encoding) { AutoFlush = true };
 
-                using (NetworkStream stream = client.GetStream())
-                {
-                    _reader = new StreamReader(stream, Constants.Packet.encoding);
-                    _writer = new StreamWriter(stream, Constants.Packet.encoding) { AutoFlush = true };
-
-                    // 수신 작업 실행
-                    await ReceivePacketAsync(_reader);
-                }
+                // 수신 작업 실행
+                await ReceivePacketAsync(_reader);
             }
         }
         catch (Exception ex)
@@ -82,19 +80,21 @@ public class RequestHandler : IRequest
         {
             try
             {
-                string jsonPacket = PacketHelper.Serialize(Packet);
-                byte[] data = Constants.Packet.encoding.GetBytes(jsonPacket);
-                int length = data.Length;
+                // string jsonPacket = PacketHelper.Serialize(Packet);
+                // byte[] data = Constants.Packet.encoding.GetBytes(jsonPacket);
+                // int length = data.Length;
 
-                // 패킷 길이(4바이트)를 먼저 보냄
-                byte[] lengthBytes = BitConverter.GetBytes(length);
-                await _writer.BaseStream.WriteAsync(lengthBytes, 0, lengthBytes.Length);
+                // // 패킷 길이(4바이트)를 먼저 보냄
+                // byte[] lengthBytes = BitConverter.GetBytes(length);
+                // await _writer.BaseStream.WriteAsync(lengthBytes, 0, lengthBytes.Length);
 
                 // 메시지를 전송
-                await _writer.WriteAsync(jsonPacket);
-                await _writer.FlushAsync(); // 스트림 비우기
-                // string jsonPacket = PacketHelper.Serialize(Packet);
-                // await _writer.WriteLineAsync(jsonPacket);
+                // await _writer.WriteAsync(jsonPacket);
+                // await _writer.FlushAsync(); // 스트림 비우기
+
+                //old
+                string jsonPacket = PacketHelper.Serialize(Packet);
+                await _writer.WriteLineAsync(jsonPacket);
             }
             catch (System.Exception)
             {
@@ -115,15 +115,16 @@ public class RequestHandler : IRequest
     {
         try
         {
-            byte[] lengthBuffer = new byte[4];
+            // byte[] lengthBuffer = new byte[4];
             while (isRunning)
             {
+                /*
                 // 1. 먼저 4바이트의 길이 정보를 읽어옴
-                int bytesRead = await reader.BaseStream.ReadAsync(lengthBuffer, 0, lengthBuffer.Length);
-                if (bytesRead != 4)
+                int bytesRead = 0;
+                while (bytesRead < 4)   // 계속해서 4바이트를 읽을 때까지 시도
                 {
-                    DebugMsg("패킷 길이 읽기 실패: 연결이 끊어졌거나 잘못된 데이터.");
-                    break;
+                    int readResult = await reader.BaseStream.ReadAsync(lengthBuffer, bytesRead, 4 - bytesRead);
+                    bytesRead += readResult;
                 }
 
                 int packetLength = BitConverter.ToInt32(lengthBuffer, 0);   //일반적으로 빅 엔디안 사용됨
@@ -139,7 +140,7 @@ public class RequestHandler : IRequest
 
                     if (bytesRead == 0)
                     {
-                        DebugMsg("패킷 데이터 읽기 실패: 연결이 끊어졌거나 잘못된 데이터.");
+                        DebugMsg($"패킷 데이터 읽기 실패: 연결이 끊어졌거나 잘못된 데이터. bytesRead should 0 but :{bytesRead}");
                         break;
                     }
                     
@@ -153,7 +154,7 @@ public class RequestHandler : IRequest
                     IPacket packet = PacketHelper.Deserialize(jsonPacket);
                     if(packet != null)
                     {
-                        if(PacketHelper.isBidirectional(packet.type))
+                        if(PacketHelper.isBidirectional(packet.type))   //양방향 패킷이면 (응답을 기다리는)
                         {
                             packetQueue.Enqueue(packet);  // 큐에 패킷 저장
                             packetSemaphore.Release();  // 패킷 도착 시 Semaphore를 Release
@@ -165,8 +166,10 @@ public class RequestHandler : IRequest
                 {
                     DebugMsg("패킷 크기 불일치: 수신된 데이터가 예상보다 작습니다.");
                 }
-                /* old one
+                */
+                ///old one
                 string? response = await reader.ReadLineAsync(); // 서버로부터 메시지 수신
+                
                 IPacket packet = PacketHelper.Deserialize(response);
                 if(packet != null)
                 {
@@ -177,7 +180,6 @@ public class RequestHandler : IRequest
                     }
                     ProcessBroadcastPacket(packet);
                 }
-                */
             }
         }
         catch (Exception ex)
@@ -274,10 +276,20 @@ public class RequestHandler : IRequest
     }
 
     #region IRequest 구현
-    public async void FirstJoin()
+    public async Task<User> FirstJoin()
     {
-        IPacket packet = new IPacket(PacketType.__FirstJoin, null, UID.Empty());
-        await SendPacketAsync(packet);
+        IPacket senderPacket = new IPacket(PacketType.__FirstJoin, null, Guid.Empty);
+        return await SendAndWaitPacketAsync(senderPacket) as User;
+    }
+     public async Task<List<Lobby.LobbyData>> GetLobbyList()
+    {
+        IPacket senderPacket= new IPacket(PacketType.__LobbyList, null, m_user.id);
+        return await SendAndWaitPacketAsync(senderPacket) as List<Lobby.LobbyData>; 
+    }
+    public async Task<Lobby.LobbyData> GetLobbyData()
+    {
+        IPacket senderPacket= new IPacket(PacketType.__LobbyData, null, m_user.id);
+        return await SendAndWaitPacketAsync(senderPacket) as Lobby.LobbyData; 
     }
     public async void StartJoin()
     {
@@ -295,22 +307,12 @@ public class RequestHandler : IRequest
         await SendPacketAsync(packet);
     }
     //Lobby
-    public async Task<List<Lobby.LobbyData>> GetLobbyList()
-    {
-        IPacket senderPacket= new IPacket(PacketType.__LobbyList, null, m_user.id);
-        return await SendAndWaitPacketAsync(senderPacket) as List<Lobby.LobbyData>; 
-    }
-    public async Task<Lobby.LobbyData> GetLobbyData()
-    {
-        IPacket senderPacket= new IPacket(PacketType.__LobbyData, null, m_user.id);
-        return await SendAndWaitPacketAsync(senderPacket) as Lobby.LobbyData; 
-    }
     public async void CreateLobby(string LobbyName)
     {
         IPacket packet = new IPacket(PacketType._CreateLobby, LobbyName, m_user.id);
         await SendPacketAsync(packet);
     }
-    public async void JoinLobby(UID lobbyID)
+    public async void JoinLobby(Guid lobbyID)
     {
         IPacket packet = new IPacket(PacketType._UpdateUserData, lobbyID, m_user.id);
         await SendPacketAsync(packet);

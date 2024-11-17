@@ -13,13 +13,13 @@ namespace Lobby
     }
     public class LobbyData
     {
-        public UID host {get; set;}
-        public UID uid { get; private set; }    
+        public Guid host {get; set;}
+        public Guid uid { get; private set; }    
         public string name { get; private set; }
         public int maxPlayers { get; private set; }
         public LobbyMode state { get; private set; }
         public List<User> players { get; private set; }
-        public LobbyData(UID uid, string name, int maxPlayers, UID host, LobbyMode mode = LobbyMode.PUBLIC)
+        public LobbyData(Guid uid, string name, int maxPlayers, Guid host, LobbyMode mode = LobbyMode.PUBLIC)
         {
             this.uid = uid;
             this.name = name;
