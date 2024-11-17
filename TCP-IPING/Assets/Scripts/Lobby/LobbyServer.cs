@@ -47,11 +47,11 @@ namespace Lobby
             }
         }
 
-        public void BroadcastMessage(string message)
+        public void BroadcastPacket(IPacket packet)
         {
             foreach (var client in clients)
             {
-                client.SendMessage(message);
+                client.SendPacketAsync(packet);
             }
         }
 

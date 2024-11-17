@@ -64,11 +64,11 @@ namespace Lobby
             clients.Remove(player);
         }
         //
-        public void BroadcastMessage(string message)
+        public void BroadcastPacket(IPacket packet)
         {
             foreach (var client in clients)
             {
-                client.SendMessage(message);
+                client.SendPacketAsync(packet);
             }
         }
         // 기타 로비 관련 메서드들...

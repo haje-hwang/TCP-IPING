@@ -32,7 +32,7 @@ public class _testClient : MonoBehaviour
         // handler = RequestHandler.CreateAsync(m_user);
         handler = new Lobby.ClientHandler(tcpClient, testLobby);
 
-        handler.SendMessage($"hi I'm {gameObject.name}. started in 127.0.0.1, {PORT}");
+        // handler.SendPacket($"hi I'm {gameObject.name}. started in 127.0.0.1, {PORT}");
         isTestRunning = true;
         StartCoroutine(sendTestMsg());
     }

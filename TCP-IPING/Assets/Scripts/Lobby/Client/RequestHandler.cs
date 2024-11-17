@@ -57,7 +57,7 @@ public class RequestHandler : IRequest
                     _writer = new StreamWriter(stream, Constants.Packet.encoding) { AutoFlush = true };
 
                     // 수신 작업 실행
-                    await ReceivePacketAsync();
+                    await ReceivePacketAsync(_reader);
                 }
             }
         }
@@ -83,7 +83,18 @@ public class RequestHandler : IRequest
             try
             {
                 string jsonPacket = PacketHelper.Serialize(Packet);
-                await _writer.WriteLineAsync(jsonPacket);
+                byte[] data = Constants.Packet.encoding.GetBytes(jsonPacket);
+                int length = data.Length;
+
+                // 패킷 길이(4바이트)를 먼저 보냄
+                byte[] lengthBytes = BitConverter.GetBytes(length);
+                await _writer.BaseStream.WriteAsync(lengthBytes, 0, lengthBytes.Length);
+
+                // 메시지를 전송
+                await _writer.WriteAsync(jsonPacket);
+                await _writer.FlushAsync(); // 스트림 비우기
+                // string jsonPacket = PacketHelper.Serialize(Packet);
+                // await _writer.WriteLineAsync(jsonPacket);
             }
             catch (System.Exception)
             {
@@ -100,16 +111,46 @@ public class RequestHandler : IRequest
     /// <summary>
     /// 서버로부터 패킷를 수신 후 큐에 저장 
     /// </summary>
-    private async Task ReceivePacketAsync()
+    private async Task ReceivePacketAsync(StreamReader reader)
     {
-        while (isRunning)
+        try
         {
-            try
+            byte[] lengthBuffer = new byte[4];
+            while (isRunning)
             {
-                if (_reader != null)
+                // 1. 먼저 4바이트의 길이 정보를 읽어옴
+                int bytesRead = await reader.BaseStream.ReadAsync(lengthBuffer, 0, lengthBuffer.Length);
+                if (bytesRead != 4)
                 {
-                    string? response = await _reader.ReadLineAsync(); // 서버로부터 메시지 수신
-                    IPacket packet = PacketHelper.Deserialize(response);
+                    DebugMsg("패킷 길이 읽기 실패: 연결이 끊어졌거나 잘못된 데이터.");
+                    break;
+                }
+
+                int packetLength = BitConverter.ToInt32(lengthBuffer, 0);   //일반적으로 빅 엔디안 사용됨
+
+                // 2. 패킷 길이에 따라 데이터를 읽음
+                byte[] dataBuffer = new byte[packetLength];
+                int totalBytesRead = 0;
+
+                while (totalBytesRead < packetLength)
+                {
+                    int remainingBytes = packetLength - totalBytesRead;
+                    bytesRead = await reader.BaseStream.ReadAsync(dataBuffer, totalBytesRead, remainingBytes);
+
+                    if (bytesRead == 0)
+                    {
+                        DebugMsg("패킷 데이터 읽기 실패: 연결이 끊어졌거나 잘못된 데이터.");
+                        break;
+                    }
+                    
+                    totalBytesRead += bytesRead;
+                }
+
+                if (totalBytesRead == packetLength)
+                {
+                    // 3. 데이터를 문자열로 변환 (JSON 디코딩)
+                    string jsonPacket = Constants.Packet.encoding.GetString(dataBuffer);
+                    IPacket packet = PacketHelper.Deserialize(jsonPacket);
                     if(packet != null)
                     {
                         if(PacketHelper.isBidirectional(packet.type))
@@ -120,13 +161,28 @@ public class RequestHandler : IRequest
                         ProcessBroadcastPacket(packet);
                     }
                 }
+                else
+                {
+                    DebugMsg("패킷 크기 불일치: 수신된 데이터가 예상보다 작습니다.");
+                }
+                /* old one
+                string? response = await reader.ReadLineAsync(); // 서버로부터 메시지 수신
+                IPacket packet = PacketHelper.Deserialize(response);
+                if(packet != null)
+                {
+                    if(PacketHelper.isBidirectional(packet.type))
+                    {
+                        packetQueue.Enqueue(packet);  // 큐에 패킷 저장
+                        packetSemaphore.Release();  // 패킷 도착 시 Semaphore를 Release
+                    }
+                    ProcessBroadcastPacket(packet);
+                }
+                */
             }
-            catch (Exception ex)
-            {
-                DebugMsg($"수신 중 오류 발생: {ex.Message}");
-                isRunning = false; // 오류 발생 시 루프 종료
-                break;
-            }
+        }
+        catch (Exception ex)
+        {
+            DebugMsg($"수신 중 오류 발생: {ex.Message}");
         }
     }
     /// <summary>
