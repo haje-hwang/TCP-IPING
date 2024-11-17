@@ -45,7 +45,16 @@ public class LoginManager : MonoBehaviour
 
     void OnJoinRoom()
     {
-        panel.SetActive(true);  // Panel을 다시 보이게 함
+        // 닉네임이 비어있지 않으면 WaitingRoom 씬으로 이동
+        if (!string.IsNullOrEmpty(playerNickname))
+        {
+            panel.SetActive(true);  // Panel을 다시 보이게 함
+        }
+        else
+        {
+            Debug.LogWarning("닉네임을 입력해주세요.");
+        }
+       
         if (RoomJoinX != null)
         {
             RoomJoinX.onClick.AddListener(() =>
