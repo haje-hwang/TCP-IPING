@@ -4,47 +4,56 @@ using System.Net;
 using System.Net.Sockets;
 using System.Linq;
 using System.Collections.Concurrent;
+using UnityEngine;
+using System.Threading.Tasks;
 
 namespace Lobby
 {
     public class LobbyServer
     {
-        public bool isRunning = true;
+        public bool isRunning ;
+
+        private int _PORT;
         private TcpListener listener;
-        private ConcurrentDictionary<Guid, ClientHandler> clientMap = new();
-        private List<ClientHandler> clients = new List<ClientHandler>();
-        private List<GameLobby> lobbies = new List<GameLobby>();
+        //private ConcurrentDictionary<Guid, ClientHandler> clientMap = new();
+        private List<ClientHandler> clients = new();
+
+        private ConcurrentDictionary<Guid, GameLobby> lobbyMap = new();
+        public UserList userList = new();
         //Events
         // public delegate void UserJoin(User joinedUser);
         // public delegate void UserExit(User exitedUser);
         // public event UserJoin OnUserJoined;
         // public event UserExit OnUserExited;
-
-        public async void Start(int port)
+        public LobbyServer(int PORT)
         {
-            listener = new TcpListener(IPAddress.Any, port);
+            listener = new TcpListener(IPAddress.Any, PORT);
             listener.Start();
-            // Console.WriteLine($"서버가 {port}번 포트에서 시작되었습니다.");
-            UnityEngine.Debug.Log($"서버가 {port}번 포트에서 시작되었습니다.");
 
-            while (isRunning)
+            _PORT = PORT;
+            isRunning = true;
+        }
+        public async Task Start()
+        {
+            try
             {
-                try
+                Debug.Log($"Listening on port {_PORT}...");
+                while (isRunning)
                 {
                     // 비동기 방식으로 클라이언트 연결을 기다림
                     TcpClient client = await listener.AcceptTcpClientAsync();
-                    UnityEngine.Debug.Log("클라이언트가 연결되었습니다.");
-                    
+                    Debug.Log("Client connected!");
+
                     ClientHandler handler = new ClientHandler(client, this);
                     clients.Add(handler);
-                    await handler.Start();
-                }
-                catch (System.Exception)
-                {
-                    
-                    throw;
+                    _ = handler.Start(); // 클라이언트 처리 시작
                 }
             }
+            catch (System.Exception)
+            {
+                throw;
+            }
+            Debug.Log($"Stop Listning...");
         }
 
         public void BroadcastPacket(IPacket packet)
@@ -55,32 +64,32 @@ namespace Lobby
             }
         }
 
+        public bool ServerExit(ClientHandler client)
+        {
+            return clients.Remove(client);
+        }
+        // 로비 관리 메서드...
         public GameLobby CreateLobby(string name, int maxPlayers, Guid host)
         {
             Guid lobby_uid = Guid.NewGuid();
             LobbyData data = new LobbyData(lobby_uid, name, maxPlayers, host);
             GameLobby lobby = new GameLobby(data);
-            lobbies.Add(lobby);
+            //lobbies.Add(lobby);
+            lobbyMap.TryAdd(lobby_uid, lobby);
             return lobby;
         }
-
-
-        // 기타 로비 관리 메서드들...
         GameLobby FindLobby(Guid uid)
         {
-            return lobbies.FirstOrDefault(lobby => lobby.data.uid == uid);
+            //return lobbies.FirstOrDefault(lobby => lobby.data.uid == uid);
+            return lobbyMap[uid];
         } 
         public bool JoinLobby(Guid lobbyCode, ClientHandler client)
         {
-            GameLobby lobby = FindLobby(lobbyCode);
-            lobby.AddPlayer(client);
-            return false;
+            return FindLobby(lobbyCode)?.AddPlayer(client) ?? false;
         }
         public bool LeaveLobby(Guid lobbyCode, ClientHandler client)
         {
-            GameLobby lobby = FindLobby(lobbyCode);
-            lobby.RemovePlayer(client);
-            return false;
+            return FindLobby(lobbyCode)?.RemovePlayer(client) ?? false;
         }
     }
 }

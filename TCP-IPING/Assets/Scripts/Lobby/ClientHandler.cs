@@ -1,10 +1,9 @@
 using System;
-using System.Net.Sockets;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Collections.Generic;
-using System.IO;
+using System.Net.Sockets;
 using System.Text;
+using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Lobby
 {
@@ -13,23 +12,15 @@ namespace Lobby
         LobbyServer m_server;
         private TcpClient m_client;
         private NetworkStream m_stream;
-        User m_user;
-
+        #nullable enable
+        User? m_user;
+        #nullable disable
+        
         public ClientHandler(TcpClient client, LobbyServer server)
         {
             this.m_client = client;
             this.m_server = server;
-        }
-
-        private void DebugMsg(string msg)
-        {
-            UnityEngine.Debug.Log("[Server] "+msg);
-            // Console.WriteLine(msg);
-        }
-        private void DebugWaringMsg(string msg)
-        {
-            UnityEngine.Debug.LogWarning("[Server] "+msg);
-            // Console.WriteLine(msg);
+            m_stream = m_client.GetStream();
         }
         public void Disconnect()
         {
@@ -39,23 +30,20 @@ namespace Lobby
             if (m_client != null)
                 m_client.Close();
 
-            DebugMsg($"Client {m_user.id} disconnected.");
-            m_server = null;
-            m_user = null;
+            m_server.ServerExit(this);
+            Debug.Log($"Client {m_user?.id} disconnected.");
         }
         public async Task Start()
         {
             try
             {
-                m_stream = m_client.GetStream();
                 // 수신 작업 실행
                 await ReceiveMessegesync(m_stream);
             }
             catch (Exception ex)
             {
-                DebugMsg($"오류 발생: {ex.Message}");
+                Debug.Log($"오류 발생: {ex.Message}");
             }
-            DebugMsg("클라이언트 종료.");
         }
         public async Task ReceiveMessegesync(NetworkStream stream)
         {
@@ -81,7 +69,7 @@ namespace Lobby
                     int packetLength = BitConverter.ToInt32(lengthBuffer, 0); // 기본 Little Endian 사용
                     if (packetLength <= 0)
                     {
-                        DebugWaringMsg($"Invalid packet length from : {packetLength}");
+                        Debug.LogWarning($"Invalid packet length from : {packetLength}");
                         continue; // 비정상 패킷 무시
                     }
 
@@ -96,7 +84,7 @@ namespace Lobby
 
                         if (bytesRead == 0)
                         {
-                            DebugMsg($"disconnected during packet read.");
+                            Debug.Log($"disconnected during packet read.");
                             return; // 연결 종료 처리
                         }
 
@@ -105,36 +93,36 @@ namespace Lobby
 
                     // 4. 데이터 처리
                     string message = Encoding.UTF8.GetString(buffer);
-                    // ReceivedPacket(message);
-                    DebugMsg($"Received from {m_user.id}: {packetLength}, {message}");
+                    ReceivedPacket(message);
+                    Debug.Log($"Received from {m_user?.id}: {packetLength}, {message}");
                 }
             }
             catch (Exception ex)
             {
-                DebugWaringMsg($"Client {m_user.id} error: {ex.Message}");
+                Debug.LogWarning($"Client {m_user?.id} error: {ex.Message}");
             }
             finally
             {
                 Disconnect();
             }
         }
-      
+
         public async Task SendMessegeAsync(string message)
         {
             if (m_client == null || !m_client.Connected)
             {
-                DebugWaringMsg("Not connected to server!");
+                Debug.LogWarning("Not connected to server!");
                 return;
             }
             if (m_stream == null || !m_stream.CanWrite)
             {
-                DebugWaringMsg("NetworkStream cannot write!");
+                Debug.LogWarning("NetworkStream cannot write!");
                 return;
             }
 
             try
             {
-                byte[] data = Constants.Packet.encoding.GetBytes(message);
+                byte[] data = System.Text.Encoding.UTF8.GetBytes(message);
                 int length = data.Length;
 
                 // 패킷 길이(4바이트)를 먼저 보냄
@@ -146,17 +134,17 @@ namespace Lobby
             }
             catch (ObjectDisposedException ex)
             {
-                DebugWaringMsg("Stream has been closed: " + ex.Message);
+                Debug.LogWarning("Stream has been closed: " + ex.Message);
                 throw;
             }
             catch (OperationCanceledException ex)
             {
-                DebugWaringMsg("Read operation was canceled: " + ex.Message);
+                Debug.LogWarning("Read operation was canceled: " + ex.Message);
                 throw;
             }
             catch (Exception ex)
             {
-                DebugWaringMsg($"Error sending message: {ex.Message}");
+                Debug.LogWarning($"Error sending message: {ex.Message}");
                 throw;
             }
         }
@@ -164,7 +152,7 @@ namespace Lobby
         {
             try
             {
-                IPacket Packet = PacketHelper.Deserialize(jsonPacket);
+                IPacket Packet = JsonHelper<IPacket>.Deserialize(jsonPacket);
                 ProcessPacket(Packet);
             }
             catch (Exception)
@@ -176,7 +164,7 @@ namespace Lobby
         {
             try
             {
-                string jsonPacket = PacketHelper.Serialize(packet);
+                string jsonPacket = JsonHelper<IPacket>.Serialize(packet);
                 await SendMessegeAsync(jsonPacket);
             }
             catch (System.Exception)
@@ -198,7 +186,7 @@ namespace Lobby
                     break;
                 case PacketType._StartJoin:
                     //서버에 접속할 때
-                    if(packet.id == Guid.Empty)
+                    if (packet.id == Guid.Empty)
                         DefineUser();
                     break;
                 case PacketType._EndJoin:
@@ -208,8 +196,8 @@ namespace Lobby
                 case PacketType._CreateLobby:
                     //로비 생성
                     string roomName = (string)packet.data;
-                    if(string.IsNullOrEmpty(roomName))
-                        roomName = $"{UserList.Instance.ReadUser(packet.id).nickName}'s Lobby";
+                    if (string.IsNullOrEmpty(roomName))
+                        roomName = $"{m_server.userList.ReadUser(packet.id).nickName}'s Lobby";
 
                     SendLobbyData(m_server.CreateLobby(roomName, 4, packet.id).data);
                     break;
@@ -230,7 +218,7 @@ namespace Lobby
                     break;
                 case PacketType._UpdateUserData:
                     User user = (User)packet.data;
-                    UserList.Instance.UpdateUser(user);
+                    m_server.userList.UpdateUser(user);
                     break;
                 default:
                     break;
@@ -242,7 +230,7 @@ namespace Lobby
         //양방향
         public void DefineUser()
         {
-            User newUser = UserList.Instance.CreateNewUser();
+            User newUser = m_server.userList.CreateNewUser();
             IPacket packet = new(PacketType.__FirstJoin, newUser, Guid.Empty);
             SendPacketAsync(packet);
         }

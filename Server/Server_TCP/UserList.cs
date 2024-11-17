@@ -28,6 +28,6 @@ public class UserList
     }
     public bool DeleteUser(Guid id)
     {
-        return userMap.TryRemove(id, out User RemovedUser);
+        return userMap.TryRemove(id, out User? RemovedUser);
     }
 }

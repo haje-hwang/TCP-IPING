@@ -40,35 +40,20 @@ public class _testClient : MonoBehaviour
         else
             Debug.LogWarning("user is null");
     }
-
-
-    public void Connect2Server()
-    {
-        TcpClient tcpClient = new TcpClient(IP, PORT);
-        handler = new RequestHandler(null, tcpClient);
-        // handler = new Lobby.ClientHandler(tcpClient, testLobby);
-
-        // handler.SendPacket($"hi I'm {gameObject.name}. started in 127.0.0.1, {PORT}");
-        
-        isTestRunning = true;
-        // StartCoroutine(sendTestMsg());
-    }
-    // IEnumerator sendTestMsg()
-    // {
-    //     while (isTestRunning)
-    //     {
-    //         handler.SendMessage($"I'm {gameObject.name}, Time is:{Time.time}");
-    //         yield return new WaitForSeconds(2.0f);
-    //     }
-    // }
     public RequestHandler GetHandler()
     {
         return handler;
     }
-    public async void button4test()
+    public void Connect2Server()
     {
-        SetUser(await handler.FirstJoin());
+        TcpClient tcpClient = new TcpClient(IP, PORT);
+        handler = new RequestHandler(null, tcpClient);
+        isTestRunning = true;
     }
+    public void RefreshUserdata()
+    {
+        SetUser(handler.GetUser());
+    }   
     private void OnApplicationQuit()
     {
         handler.Disconnect();

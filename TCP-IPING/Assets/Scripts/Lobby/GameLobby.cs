@@ -11,6 +11,7 @@ namespace Lobby
         PUBLIC,
         PRIVATE
     }
+    [Serializable]
     public class LobbyData
     {
         public Guid host {get; set;}
@@ -58,10 +59,10 @@ namespace Lobby
             }
             return false;
         }
-        public void RemovePlayer(ClientHandler player)
+        public bool RemovePlayer(ClientHandler player)
         {
             // OnLobbyExited?.Invoke(player.user);
-            clients.Remove(player);
+            return clients.Remove(player);
         }
         //
         public void BroadcastPacket(IPacket packet)

@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Linq;
 using System.Collections.Concurrent;
+using System.Threading.Tasks;
 using Server_TCP;
 
 namespace Lobby
@@ -14,7 +15,7 @@ namespace Lobby
 
         private int _PORT;
         private TcpListener listener;
-        private ConcurrentDictionary<Guid, ClientHandler> clientMap = new();
+        //private ConcurrentDictionary<Guid, ClientHandler> clientMap = new();
         private List<ClientHandler> clients = new();
 
         private ConcurrentDictionary<Guid, GameLobby> lobbyMap = new();
@@ -63,6 +64,10 @@ namespace Lobby
             }
         }
 
+        public bool ServerExit(ClientHandler client)
+        {
+            return clients.Remove(client);
+        }
         // 로비 관리 메서드...
         public GameLobby CreateLobby(string name, int maxPlayers, Guid host)
         {
@@ -73,7 +78,7 @@ namespace Lobby
             lobbyMap.TryAdd(lobby_uid, lobby);
             return lobby;
         }
-        GameLobby? FindLobby(Guid uid)
+        GameLobby FindLobby(Guid uid)
         {
             //return lobbies.FirstOrDefault(lobby => lobby.data.uid == uid);
             return lobbyMap[uid];

@@ -51,4 +51,11 @@ public class IPacket    //상속해서 "data"부분을 override하고 무슨 데
         this.data = data;
         this.id = id;
     }
+    public static bool isBidirectional(PacketType type) => type switch
+    {
+        PacketType.__FirstJoin => true,
+        PacketType.__LobbyData => true,
+        PacketType.__LobbyList => true,
+        _ => false
+    };
 }

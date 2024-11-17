@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading.Tasks;
 using Server_TCP;
 
 namespace Lobby
@@ -10,7 +12,9 @@ namespace Lobby
         LobbyServer m_server;
         private TcpClient m_client;
         private NetworkStream m_stream;
+#nullable enable
         User? m_user;
+#nullable disable
 
         public ClientHandler(TcpClient client, LobbyServer server)
         {
@@ -26,9 +30,8 @@ namespace Lobby
             if (m_client != null)
                 m_client.Close();
 
+            m_server.ServerExit(this);
             Debug.Log($"Client {m_user?.id} disconnected.");
-            m_server = null;
-            m_user = null;
         }
         public async Task Start()
         {
@@ -41,7 +44,6 @@ namespace Lobby
             {
                 Debug.Log($"오류 발생: {ex.Message}");
             }
-            Debug.Log("클라이언트 종료.");
         }
         public async Task ReceiveMessegesync(NetworkStream stream)
         {
@@ -91,7 +93,7 @@ namespace Lobby
 
                     // 4. 데이터 처리
                     string message = Encoding.UTF8.GetString(buffer);
-                    // ReceivedPacket(message);
+                    ReceivedPacket(message);
                     Debug.Log($"Received from {m_user?.id}: {packetLength}, {message}");
                 }
             }
@@ -150,7 +152,7 @@ namespace Lobby
         {
             try
             {
-                IPacket Packet = PacketHelper.Deserialize(jsonPacket);
+                IPacket Packet = JsonHelper<IPacket>.Deserialize(jsonPacket);
                 ProcessPacket(Packet);
             }
             catch (Exception)
@@ -162,7 +164,7 @@ namespace Lobby
         {
             try
             {
-                string jsonPacket = PacketHelper.Serialize(packet);
+                string jsonPacket = JsonHelper<IPacket>.Serialize(packet);
                 await SendMessegeAsync(jsonPacket);
             }
             catch (System.Exception)
@@ -229,7 +231,8 @@ namespace Lobby
         public void DefineUser()
         {
             User newUser = m_server.userList.CreateNewUser();
-            IPacket packet = new(PacketType.__FirstJoin, newUser, Guid.Empty);
+            Guid id = newUser.id;
+            IPacket packet = new(PacketType.__FirstJoin, id, Guid.Empty);
             SendPacketAsync(packet);
         }
         public void SendLobbyList(List<Lobby.LobbyData> lobbyList)

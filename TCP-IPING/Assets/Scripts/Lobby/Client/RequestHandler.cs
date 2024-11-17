@@ -8,7 +8,7 @@ using System.Collections.Concurrent;
 public class RequestHandler : IRequest
 {
     public bool isRunning;
-    static User m_user;
+    User m_user {get; set;}
     TcpClient m_client;
     NetworkStream m_stream;
     private static ConcurrentQueue<IPacket> packetQueue = new ConcurrentQueue<IPacket>();
@@ -24,7 +24,7 @@ public class RequestHandler : IRequest
         }
         else
             DebugMsg($"RequestHandler Created");
-            
+
         m_client = tcpClient;
          _ = Task.Run(() => Start());  // Start는 백그라운드 스레드에서 실행됨
     }
@@ -32,6 +32,7 @@ public class RequestHandler : IRequest
     {
         Disconnect();
     }
+    public User GetUser() {return m_user; }
     private void DebugMsg(string msg)
     {
         UnityEngine.Debug.Log("[Client] "+msg);
@@ -67,13 +68,16 @@ public class RequestHandler : IRequest
 
             //User가 정의되지 않은 첫 접속이면, User정보 받기
             if(m_user == null)
-                m_user = await FirstJoin();
+            {
+                Guid id = await FirstJoin();
+                m_user = new User(id, "Annonymous");
+                DebugMsg($"User Confirmed : {m_user?.id}, {m_user.nickName}");
+            }
         }
         catch (Exception ex)
         {
-            DebugMsg($"오류 발생: {ex.Message}");
+            DebugWaringMsg($"Error in RequestHandler.Start(): {ex.Message}");
         }
-        DebugMsg("클라이언트 종료.");
     }
     public async Task ReceivePacketAsync(NetworkStream stream)
     {
@@ -99,7 +103,7 @@ public class RequestHandler : IRequest
                 int packetLength = BitConverter.ToInt32(lengthBuffer, 0); // 기본 Little Endian 사용
                 if (packetLength <= 0)
                 {
-                    DebugMsg($"Invalid packet length from : {packetLength}");
+                    DebugWaringMsg($"Invalid packet length from : {packetLength}");
                     continue; // 비정상 패킷 무시
                 }
 
@@ -114,7 +118,7 @@ public class RequestHandler : IRequest
 
                     if (bytesRead == 0)
                     {
-                        DebugMsg($"disconnected during packet read.");
+                        DebugWaringMsg($"disconnected during packet read.");
                         return; // 연결 종료 처리
                     }
                     totalBytesRead += bytesRead;
@@ -122,7 +126,7 @@ public class RequestHandler : IRequest
 
                 // 4. 데이터 처리
                 string message = Constants.Packet.encoding.GetString(buffer);
-                // ReceivedPacket(message);
+                ReceivedPacket(message);
                 DebugMsg($"Received : {packetLength}, {message}");
             }
         }
@@ -177,10 +181,10 @@ public class RequestHandler : IRequest
     {
         try
         {
-            IPacket packet = PacketHelper.Deserialize(jsonPacket);
+            IPacket packet = JsonHelper<IPacket>.Deserialize(jsonPacket);
             if(packet != null)
             {
-                if(PacketHelper.isBidirectional(packet.type))
+                if(IPacket.isBidirectional(packet.type))
                 {
                     packetQueue.Enqueue(packet);  // 큐에 패킷 저장
                     packetSemaphore.Release();  // 패킷 도착 시 Semaphore를 Release
@@ -198,7 +202,7 @@ public class RequestHandler : IRequest
     {
         try
         {
-            string jsonPacket = PacketHelper.Serialize(Packet);
+            string jsonPacket = JsonHelper<IPacket>.Serialize(Packet);
             await SendMessegeAsync(jsonPacket);
         }
         catch (System.Exception)
@@ -208,14 +212,13 @@ public class RequestHandler : IRequest
     }
 
     /// <summary>
-    /// 응답 패킷이 필요한 요청패킷을 전송 
+    /// 응답이 필요한 요청패킷을 전송 
     /// </summary>
     /// <param name="senderPacket">Request packet</param>
     /// <param name="timeoutSeconds">n초 안에 적절한 Respond 패킷이 오지 않으면 timeout</param>
     /// <returns></returns>
     public async Task<object> SendAndWaitPacketAsync(IPacket senderPacket, int timeoutSeconds = 3)
     {
-        DebugMsg($"Client Sent packet:{senderPacket.type}");
         using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(timeoutSeconds));
         IPacket responsePacket = null;  // 응답 패킷을 저장할 변수
 
@@ -236,10 +239,12 @@ public class RequestHandler : IRequest
 
                 // 큐에서 패킷을 꺼냄
                 if (!packetQueue.TryDequeue(out responsePacket) || responsePacket == null)
+                {
                     continue;
+                }
 
                 // 응답 타입이 일치하면 루프 종료
-                if (responsePacket.type == senderPacket.type)
+                if (senderPacket.type == (PacketType)responsePacket.type)
                     break;
             }
         }
@@ -255,8 +260,8 @@ public class RequestHandler : IRequest
             DebugMsg($"Error occurred: {ex.Message}");
             throw;
         }
-
-        return responsePacket?.data; // 응답 패킷의 데이터 반환 (응답이 없으면 null 반환)
+        DebugMsg($"## responsePacket?.data: {responsePacket.data}");
+        return responsePacket.data; // 응답 패킷의 데이터 반환 (응답이 없으면 null 반환)
     }
 
 
@@ -293,20 +298,26 @@ public class RequestHandler : IRequest
     }
 
     #region IRequest 구현
-    public async Task<User> FirstJoin()
+    public async Task<Guid> FirstJoin()
     {
         IPacket senderPacket = new IPacket(PacketType.__FirstJoin, null, Guid.Empty);
-        return await SendAndWaitPacketAsync(senderPacket) as User;
+        object receivedData = await SendAndWaitPacketAsync(senderPacket);
+            DebugMsg($"FirstJoin(), before Deserialize: {receivedData}");
+        // Guid id = JsonHelper<Guid>.Deserialize((string)receivedData);
+        //     DebugMsg($"FirstJoin(), Deserialize: {id}");
+        return new Guid((string)receivedData);
     }
      public async Task<List<Lobby.LobbyData>> GetLobbyList()
     {
         IPacket senderPacket= new IPacket(PacketType.__LobbyList, null, m_user.id);
-        return await SendAndWaitPacketAsync(senderPacket) as List<Lobby.LobbyData>; 
+        object receivedData = await SendAndWaitPacketAsync(senderPacket); 
+        return JsonHelper<List<Lobby.LobbyData>>.Deserialize((string)receivedData); 
     }
     public async Task<Lobby.LobbyData> GetLobbyData()
     {
         IPacket senderPacket= new IPacket(PacketType.__LobbyData, null, m_user.id);
-        return await SendAndWaitPacketAsync(senderPacket) as Lobby.LobbyData; 
+        object receivedData = await SendAndWaitPacketAsync(senderPacket); 
+        return JsonHelper<Lobby.LobbyData>.Deserialize((string)receivedData); 
     }
     public async void StartJoin()
     {

@@ -1,5 +1,6 @@
 using System;
 
+[Serializable]
 public class User
 {
     public Guid id {get; private set;}
