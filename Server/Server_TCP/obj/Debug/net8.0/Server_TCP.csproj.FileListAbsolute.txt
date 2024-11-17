@@ -1,0 +1,15 @@
+C:\CodeFolder\Github\TCP-IPING\Server\Server_TCP\bin\Debug\net8.0\Server_TCP.exe
+C:\CodeFolder\Github\TCP-IPING\Server\Server_TCP\bin\Debug\net8.0\Server_TCP.deps.json
+C:\CodeFolder\Github\TCP-IPING\Server\Server_TCP\bin\Debug\net8.0\Server_TCP.runtimeconfig.json
+C:\CodeFolder\Github\TCP-IPING\Server\Server_TCP\bin\Debug\net8.0\Server_TCP.dll
+C:\CodeFolder\Github\TCP-IPING\Server\Server_TCP\bin\Debug\net8.0\Server_TCP.pdb
+C:\CodeFolder\Github\TCP-IPING\Server\Server_TCP\obj\Debug\net8.0\Server_TCP.GeneratedMSBuildEditorConfig.editorconfig
+C:\CodeFolder\Github\TCP-IPING\Server\Server_TCP\obj\Debug\net8.0\Server_TCP.AssemblyInfoInputs.cache
+C:\CodeFolder\Github\TCP-IPING\Server\Server_TCP\obj\Debug\net8.0\Server_TCP.AssemblyInfo.cs
+C:\CodeFolder\Github\TCP-IPING\Server\Server_TCP\obj\Debug\net8.0\Server_TCP.csproj.CoreCompileInputs.cache
+C:\CodeFolder\Github\TCP-IPING\Server\Server_TCP\obj\Debug\net8.0\Server_TCP.sourcelink.json
+C:\CodeFolder\Github\TCP-IPING\Server\Server_TCP\obj\Debug\net8.0\Server_TCP.dll
+C:\CodeFolder\Github\TCP-IPING\Server\Server_TCP\obj\Debug\net8.0\refint\Server_TCP.dll
+C:\CodeFolder\Github\TCP-IPING\Server\Server_TCP\obj\Debug\net8.0\Server_TCP.pdb
+C:\CodeFolder\Github\TCP-IPING\Server\Server_TCP\obj\Debug\net8.0\Server_TCP.genruntimeconfig.cache
+C:\CodeFolder\Github\TCP-IPING\Server\Server_TCP\obj\Debug\net8.0\ref\Server_TCP.dll

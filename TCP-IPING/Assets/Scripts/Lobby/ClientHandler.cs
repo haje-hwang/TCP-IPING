@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
 namespace Lobby
 {
@@ -12,22 +13,24 @@ namespace Lobby
         LobbyServer server;
         //
         public bool isRunning = true;
-        private TcpClient client;
-        private NetworkStream stream;
-        #nullable enable
-        private StreamReader? _reader;
-        private StreamWriter? _writer;
-        #nullable disable
+        private TcpClient m_client;
+        private NetworkStream m_stream;
+        User m_user;
 
         public ClientHandler(TcpClient client, LobbyServer server)
         {
-            this.client = client;
+            this.m_client = client;
             this.server = server;
         }
 
         private void DebugMsg(string msg)
         {
-            UnityEngine.Debug.Log(msg);
+            UnityEngine.Debug.Log("[Server] "+msg);
+            // Console.WriteLine(msg);
+        }
+        private void DebugWaringMsg(string msg)
+        {
+            UnityEngine.Debug.LogWarning("[Server] "+msg);
             // Console.WriteLine(msg);
         }
         public void Close()
@@ -43,27 +46,9 @@ namespace Lobby
             isRunning = true;
             try
             {
-                /* old one
-                byte[] buffer = new byte[Constants.Packet.bufferLength];
-                while (isRunning)
-                {
-                    //데이터를 수신 대기
-                    int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
-                    if (bytesRead == 0) break;  // 클라이언트가 연결을 종료한 경우
-
-                    string message = Constants.Packet.encoding.GetString(buffer, 0, bytesRead);
-                    ProcessPacket(message);
-                }
-                _Close();
-                */
-                using (NetworkStream stream = client.GetStream())
-                {
-                    _reader = new StreamReader(stream, Constants.Packet.encoding);
-                    _writer = new StreamWriter(stream, Constants.Packet.encoding) { AutoFlush = true };
-
-                    // 수신 작업 실행
-                    await ReceivePacketAsync(_reader);
-                }
+                m_stream = m_client.GetStream();
+                // 수신 작업 실행
+                await ReceiveMessegesync(m_stream);
             }
             catch (Exception ex)
             {
@@ -71,125 +56,136 @@ namespace Lobby
             }
             DebugMsg("클라이언트 종료.");
         }
-        private async Task ReceivePacketAsync(StreamReader reader)
+        public async Task ReceiveMessegesync(NetworkStream stream)
         {
             try
             {
-                // byte[] lengthBuffer = new byte[4];
-                while (isRunning)
+                byte[] buffer;
+                byte[] lengthBuffer = new byte[4]; // 길이 정보를 저장할 버퍼
+                while (m_client.Connected)
                 {
-                    /*
-                    // 1. 먼저 4바이트의 길이 정보를 읽어옴
+                    // 1. 패킷 길이 읽기
                     int bytesRead = 0;
-                    while (bytesRead < 4)   // 계속해서 4바이트를 읽을 때까지 시도
+                    while (bytesRead < 4)
                     {
-                        int readResult = await reader.BaseStream.ReadAsync(lengthBuffer, bytesRead, 4 - bytesRead);
+                        int readResult = await m_stream.ReadAsync(lengthBuffer, bytesRead, 4 - bytesRead);
+                        if (readResult == 0)
+                        {
+                            return; // 연결 종료 처리
+                        }
                         bytesRead += readResult;
                     }
 
-                    int packetLength = BitConverter.ToInt32(lengthBuffer, 0);  //일반적으로 빅 엔디안 사용됨
+                    // 2. 길이 정보 변환
+                    int packetLength = BitConverter.ToInt32(lengthBuffer, 0); // 기본 Little Endian 사용
+                    if (packetLength <= 0)
+                    {
+                        DebugWaringMsg($"Invalid packet length from : {packetLength}");
+                        continue; // 비정상 패킷 무시
+                    }
 
-                    // 2. 패킷 길이에 따라 데이터를 읽음
-                    byte[] dataBuffer = new byte[packetLength];
+                    // 3. 패킷 데이터 읽기
+                    buffer = new byte[packetLength];
                     int totalBytesRead = 0;
 
                     while (totalBytesRead < packetLength)
                     {
                         int remainingBytes = packetLength - totalBytesRead;
-                        bytesRead = await reader.BaseStream.ReadAsync(dataBuffer, totalBytesRead, remainingBytes);
+                        bytesRead = await m_stream.ReadAsync(buffer, totalBytesRead, remainingBytes);
 
                         if (bytesRead == 0)
                         {
-                            DebugMsg($"패킷 데이터 읽기 실패: 연결이 끊어졌거나 잘못된 데이터. bytesRead should 0 but :{bytesRead}");
-                            break;
+                            DebugMsg($"disconnected during packet read.");
+                            return; // 연결 종료 처리
                         }
 
                         totalBytesRead += bytesRead;
                     }
 
-                    if (totalBytesRead == packetLength)
-                    {
-                        // 3. 데이터를 문자열로 변환 (JSON 디코딩)
-                        string jsonPacket = Constants.Packet.encoding.GetString(dataBuffer);
-
-                        // 4. 패킷 처리 로직 호출
-                        ProcessPacket(jsonPacket);
-                    }
-                    else
-                    {
-                        DebugMsg("패킷 크기 불일치: 수신된 데이터가 예상보다 작습니다.");
-                    }
-                    */
-                    string? request = await reader.ReadLineAsync(); // 서버로부터 메시지 수신
-                    DebugMsg($"request: {request}");
-                    String2Packet(request);
-         
-                    // string jsonPacket = Constants.Packet.encoding.GetString(dataBuffer);
-                    // ProcessPacket(jsonPacket);
+                    // 4. 데이터 처리
+                    string message = Encoding.UTF8.GetString(buffer);
+                    // ReceivedPacket(message);
+                    DebugMsg($"Received from {m_user.id}: {packetLength}, {message}");
                 }
             }
             catch (Exception ex)
             {
-                DebugMsg($"수신 중 오류 발생: {ex.Message}");
+                DebugWaringMsg($"Client {m_user.id} error: {ex.Message}");
+            }
+            finally
+            {
+                m_client.Close();
+                DebugMsg($"Client {m_user.id} disconnected.");
+            }
+        }
+      
+        public async Task SendMessegeAsync(string message)
+        {
+            if (m_client == null || !m_client.Connected)
+            {
+                DebugWaringMsg("Not connected to server!");
+                return;
+            }
+            if (m_stream == null || !m_stream.CanWrite)
+            {
+                DebugWaringMsg("NetworkStream cannot write!");
+                return;
+            }
+
+            try
+            {
+                byte[] data = Constants.Packet.encoding.GetBytes(message);
+                int length = data.Length;
+
+                // 패킷 길이(4바이트)를 먼저 보냄
+                byte[] lengthBytes = BitConverter.GetBytes(length);
+                await m_stream.WriteAsync(lengthBytes, 0, lengthBytes.Length);
+
+                // 메시지를 전송
+                await m_stream.WriteAsync(data, 0, data.Length);
+            }
+            catch (ObjectDisposedException ex)
+            {
+                DebugWaringMsg("Stream has been closed: " + ex.Message);
+                throw;
+            }
+            catch (OperationCanceledException ex)
+            {
+                DebugWaringMsg("Read operation was canceled: " + ex.Message);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                DebugWaringMsg($"Error sending message: {ex.Message}");
+                throw;
+            }
+        }
+        private void ReceivedPacket(string jsonPacket)
+        {
+            try
+            {
+                IPacket Packet = PacketHelper.Deserialize(jsonPacket);
+                ProcessPacket(Packet);
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
         public async void SendPacketAsync(IPacket packet)
         {
-            if (_writer != null)
-            {
-                try
-                {
-                    DebugMsg($"Client Sent packet:{packet.type}");
-                    // old one
-                    string jsonPacket = PacketHelper.Serialize(packet);
-                    byte[] buffer = Constants.Packet.encoding.GetBytes(jsonPacket);
-                    await stream.WriteAsync(buffer, 0, buffer.Length);
-                    
-
-                    // string jsonPacket = PacketHelper.Serialize(packet);
-                    // byte[] data = Constants.Packet.encoding.GetBytes(jsonPacket);
-                    // int length = data.Length;
-
-                    // // 패킷 길이(4바이트)를 먼저 보냄
-                    // byte[] lengthBytes = BitConverter.GetBytes(length);
-                    // await _writer.BaseStream.WriteAsync(lengthBytes, 0, lengthBytes.Length);
-
-                    // // 메시지를 전송
-                    // await _writer.WriteAsync(jsonPacket);
-                    // await _writer.FlushAsync(); // 스트림 비우기
-                }
-                catch (System.Exception)
-                {
-                    
-                    throw;
-                }
-            }
-            else
-            {
-                DebugMsg("Do RequestHandler.CreateAsync(User) First!");
-            }
-        }
-
-        /// <summary>
-        /// 받은 string을 패킷으로 Deserialize
-        /// </summary>
-        /// <param name="jsonPacket"></param>
-        private void String2Packet(string jsonPacket)
-        {
             try
             {
-                IPacket packet = PacketHelper.Deserialize(jsonPacket);
-                // 패킷 처리 로직 구현
-                HandlePacketType(packet);
-                UnityEngine.Debug.Log($"Packet: {packet.type}, {packet.data}");
+                string jsonPacket = PacketHelper.Serialize(packet);
+                await SendMessegeAsync(jsonPacket);
             }
             catch (System.Exception)
             {
                 throw;
-            }  
+            }
         }
 
-        private void HandlePacketType(IPacket packet)
+        private void ProcessPacket(IPacket packet)
         {
             switch (packet.type)
             {

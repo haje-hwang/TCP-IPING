@@ -37,10 +37,10 @@ namespace Lobby
         public List<ClientHandler> clients { get; private set; }
 
         //Events
-        public delegate void LobbyJoin(User joinedUser);
-        public delegate void LobbyExit(User exitedUser);
-        public event LobbyJoin OnLobbyJoined;
-        public event LobbyExit OnLobbyExited;
+        // public delegate void LobbyJoin(User joinedUser);
+        // public delegate void LobbyExit(User exitedUser);
+        // public event LobbyJoin OnLobbyJoined;
+        // public event LobbyExit OnLobbyExited;
 
         public GameLobby(LobbyData data)
         {

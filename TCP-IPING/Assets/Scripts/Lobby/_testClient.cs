@@ -42,7 +42,7 @@ public class _testClient : MonoBehaviour
     }
 
 
-    public void Connect2Server(Lobby.LobbyServer testLobby)
+    public void Connect2Server()
     {
         TcpClient tcpClient = new TcpClient(IP, PORT);
         handler = new RequestHandler(null, tcpClient);
@@ -53,14 +53,14 @@ public class _testClient : MonoBehaviour
         isTestRunning = true;
         // StartCoroutine(sendTestMsg());
     }
-    IEnumerator sendTestMsg()
-    {
-        while (isTestRunning)
-        {
-            // handler.SendMessage($"I'm {gameObject.name}, Time is:{Time.time}");
-            yield return new WaitForSeconds(2.0f);
-        }
-    }
+    // IEnumerator sendTestMsg()
+    // {
+    //     while (isTestRunning)
+    //     {
+    //         handler.SendMessage($"I'm {gameObject.name}, Time is:{Time.time}");
+    //         yield return new WaitForSeconds(2.0f);
+    //     }
+    // }
     public RequestHandler GetHandler()
     {
         return handler;
@@ -68,5 +68,10 @@ public class _testClient : MonoBehaviour
     public async void button4test()
     {
         SetUser(await handler.FirstJoin());
+    }
+    private void OnApplicationQuit()
+    {
+        handler.Disconnect();
+        handler = null;
     }
 }

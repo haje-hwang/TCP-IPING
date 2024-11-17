@@ -15,10 +15,10 @@ namespace Lobby
         private List<ClientHandler> clients = new List<ClientHandler>();
         private List<GameLobby> lobbies = new List<GameLobby>();
         //Events
-        public delegate void UserJoin(User joinedUser);
-        public delegate void UserExit(User exitedUser);
-        public event UserJoin OnUserJoined;
-        public event UserExit OnUserExited;
+        // public delegate void UserJoin(User joinedUser);
+        // public delegate void UserExit(User exitedUser);
+        // public event UserJoin OnUserJoined;
+        // public event UserExit OnUserExited;
 
         public async void Start(int port)
         {
