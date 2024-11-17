@@ -11,6 +11,8 @@ public class LoginManager : MonoBehaviour
     public TMP_InputField RoomJoinInput;
     public GameObject panel;
     public Button RoomJoinX;
+    public Button RoomJoinConfirm;
+
 
     private string playerNickname;
 
@@ -19,6 +21,8 @@ public class LoginManager : MonoBehaviour
         // 버튼 클릭 시 호출할 함수 연결
         RoomCreate.onClick.AddListener(OnCreateRoom);
         RoomJoin.onClick.AddListener(OnJoinRoom);
+        RoomJoinConfirm.onClick.AddListener(OnConfirmJoinRoom);
+        RoomJoinX.onClick.AddListener(OnRoomJoinX);
     }
 
     public void SaveNickname()
@@ -46,22 +50,34 @@ public class LoginManager : MonoBehaviour
     void OnJoinRoom()
     {
         // 닉네임이 비어있지 않으면 WaitingRoom 씬으로 이동
-        if (!string.IsNullOrEmpty(playerNickname))
+        
+        panel.SetActive(true);  // Panel을 다시 보이게 함
+       
+
+    }
+
+    public void OnRoomJoinX()
+    {
+        RoomJoinX.onClick.RemoveAllListeners();
+        panel.SetActive(false); // 패널 숨김
+    }
+
+    public void OnConfirmJoinRoom()
+    {
+        Debug.Log("입장 버튼 클릭됨");
+        // 방 번호 입력 확인
+        string roomNumber = RoomJoinInput.text;
+
+        if (!string.IsNullOrEmpty(roomNumber))
         {
-            panel.SetActive(true);  // Panel을 다시 보이게 함
+            Debug.Log($"방 번호 {roomNumber}로 이동합니다.");
+            SceneManager.LoadScene("WaitingScene");
         }
         else
         {
-            Debug.LogWarning("닉네임을 입력해주세요.");
-        }
-       
-        if (RoomJoinX != null)
-        {
-            RoomJoinX.onClick.AddListener(() =>
-            {
-                RoomJoinX.onClick.RemoveAllListeners();
-                panel.SetActive(false); // 패널 숨김
-            });
+            Debug.LogWarning("방 번호를 입력해주세요.");
         }
     }
+
+
 }
