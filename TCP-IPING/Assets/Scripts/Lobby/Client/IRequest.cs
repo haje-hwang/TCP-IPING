@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 public interface IRequest
 {
-    public Task<User> FirstJoin();
+    public Task<Guid> FirstJoin();
     public void StartJoin();
     public void EndJoin();
     public void UpdateUser(User user);

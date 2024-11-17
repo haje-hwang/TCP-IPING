@@ -11,7 +11,6 @@ namespace Lobby
         PUBLIC,
         PRIVATE
     }
-    [Serializable]
     public class LobbyData
     {
         public Guid host {get; set;}

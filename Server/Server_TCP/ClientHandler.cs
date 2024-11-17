@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
-using UnityEngine;
+using Server_TCP;
 
 namespace Lobby
 {
@@ -12,10 +12,10 @@ namespace Lobby
         LobbyServer m_server;
         private TcpClient m_client;
         private NetworkStream m_stream;
-        #nullable enable
+#nullable enable
         User? m_user;
-        #nullable disable
-        
+#nullable disable
+
         public ClientHandler(TcpClient client, LobbyServer server)
         {
             this.m_client = client;
@@ -93,8 +93,8 @@ namespace Lobby
 
                     // 4. 데이터 처리
                     string message = Encoding.UTF8.GetString(buffer);
+                    Debug.Log($"Received from {m_user?.nickName}, {m_user?.id}: {packetLength}, {message}");
                     ReceivedPacket(message);
-                    Debug.Log($"Received from {m_user?.id}: {packetLength}, {message}");
                 }
             }
             catch (Exception ex)
@@ -131,6 +131,7 @@ namespace Lobby
 
                 // 메시지를 전송
                 await m_stream.WriteAsync(data, 0, data.Length);
+                Debug.Log($"Sent to {m_user?.nickName}, {m_user?.id}: {length}, {message}");
             }
             catch (ObjectDisposedException ex)
             {
@@ -231,7 +232,10 @@ namespace Lobby
         public void DefineUser()
         {
             User newUser = m_server.userList.CreateNewUser();
-            IPacket packet = new(PacketType.__FirstJoin, newUser, Guid.Empty);
+            m_user = newUser;
+
+            Guid id = newUser.id;
+            IPacket packet = new(PacketType.__FirstJoin, id, Guid.Empty);
             SendPacketAsync(packet);
         }
         public void SendLobbyList(List<Lobby.LobbyData> lobbyList)
