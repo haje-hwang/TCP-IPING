@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "9OvoAS0SMsQ=",
+  "success": true,
+  "projectFilePath": "C:\\CodeFolder\\Github\\TCP-IPING\\Server\\Server_TCP\\Server_TCP.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\HAJE\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512"
+  ],
+  "logs": []
+}

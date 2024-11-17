@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
-using UnityEngine;
+using Server_TCP;
 
 namespace Lobby
 {
@@ -12,10 +12,10 @@ namespace Lobby
         LobbyServer m_server;
         private TcpClient m_client;
         private NetworkStream m_stream;
-        #nullable enable
+#nullable enable
         User? m_user;
-        #nullable disable
-        
+#nullable disable
+
         public ClientHandler(TcpClient client, LobbyServer server)
         {
             this.m_client = client;
@@ -231,7 +231,8 @@ namespace Lobby
         public void DefineUser()
         {
             User newUser = m_server.userList.CreateNewUser();
-            IPacket packet = new(PacketType.__FirstJoin, newUser, Guid.Empty);
+            Guid id = newUser.id;
+            IPacket packet = new(PacketType.__FirstJoin, id, Guid.Empty);
             SendPacketAsync(packet);
         }
         public void SendLobbyList(List<Lobby.LobbyData> lobbyList)

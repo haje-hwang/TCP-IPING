@@ -9,7 +9,7 @@ public class JsonHelper<T>
     }
 
     // JSON 문자열을 패킷으로 역직렬화
-    public static T Deserialize(string json)
+    public static T? Deserialize(string json)
     {
         return JsonConvert.DeserializeObject<T>(json);
     }
