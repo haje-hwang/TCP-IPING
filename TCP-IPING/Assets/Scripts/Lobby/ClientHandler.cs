@@ -2,59 +2,48 @@ using System;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.IO;
 
 namespace Lobby
 {
-    public class ClientHandler
+    public class ClientHandler : IResponse
     {
         LobbyServer server;
         //
-        public User user;
         public bool isRunning = true;
         private TcpClient client;
         private NetworkStream stream;
+        #nullable enable
+        private StreamReader? _reader;
+        private StreamWriter? _writer;
+        #nullable disable
 
         public ClientHandler(TcpClient client, LobbyServer server)
         {
             this.client = client;
             this.server = server;
-            stream = client.GetStream();
         }
 
-        public async Task Start()
+        private void DebugMsg(string msg)
         {
-            await Task.Run(() => HandleClient());
+            UnityEngine.Debug.Log(msg);
+            // Console.WriteLine(msg);
         }
         public void Close()
         {
             isRunning = false;
         }
-        public void SendMessage(string message)
+        public async Task Start()
         {
-            IPacket packet = new IPacket(PacketType.Message, message);
-            SendPacket(packet);
+            await Task.Run(() => HandleClient());
         }
-        public async void SendPacket(IPacket packet)
-        {
-            try
-            {
-                packet.id = 1;
-                string jsonPacket = PacketHelper.Serialize(packet);
-                byte[] buffer = Constants.Packet.encoding.GetBytes(jsonPacket);
-                await stream.WriteAsync(buffer, 0, buffer.Length);
-            }
-            catch (System.Exception)
-            {
-                
-                throw;
-            }
-        }
-
-
         private async Task HandleClient()
         {
+            isRunning = true;
             try
             {
+                /* old one
                 byte[] buffer = new byte[Constants.Packet.bufferLength];
                 while (isRunning)
                 {
@@ -66,38 +55,234 @@ namespace Lobby
                     ProcessPacket(message);
                 }
                 _Close();
-            }
-            catch (System.Exception e)
-            {
-                UnityEngine.Debug.LogWarning(e);
-                throw;
-            }
-        }
-        private void _Close()
-        {
-            UnityEngine.Debug.Log("ClientHandler Closed");
-            client.Close();
-        }
+                */
+                using (NetworkStream stream = client.GetStream())
+                {
+                    _reader = new StreamReader(stream, Constants.Packet.encoding);
+                    _writer = new StreamWriter(stream, Constants.Packet.encoding) { AutoFlush = true };
 
+                    // 수신 작업 실행
+                    await ReceivePacketAsync(_reader);
+                }
+            }
+            catch (Exception ex)
+            {
+                DebugMsg($"오류 발생: {ex.Message}");
+            }
+            DebugMsg("클라이언트 종료.");
+        }
+        private async Task ReceivePacketAsync(StreamReader reader)
+        {
+            try
+            {
+                // byte[] lengthBuffer = new byte[4];
+                while (isRunning)
+                {
+                    /*
+                    // 1. 먼저 4바이트의 길이 정보를 읽어옴
+                    int bytesRead = 0;
+                    while (bytesRead < 4)   // 계속해서 4바이트를 읽을 때까지 시도
+                    {
+                        int readResult = await reader.BaseStream.ReadAsync(lengthBuffer, bytesRead, 4 - bytesRead);
+                        bytesRead += readResult;
+                    }
+
+                    int packetLength = BitConverter.ToInt32(lengthBuffer, 0);  //일반적으로 빅 엔디안 사용됨
+
+                    // 2. 패킷 길이에 따라 데이터를 읽음
+                    byte[] dataBuffer = new byte[packetLength];
+                    int totalBytesRead = 0;
+
+                    while (totalBytesRead < packetLength)
+                    {
+                        int remainingBytes = packetLength - totalBytesRead;
+                        bytesRead = await reader.BaseStream.ReadAsync(dataBuffer, totalBytesRead, remainingBytes);
+
+                        if (bytesRead == 0)
+                        {
+                            DebugMsg($"패킷 데이터 읽기 실패: 연결이 끊어졌거나 잘못된 데이터. bytesRead should 0 but :{bytesRead}");
+                            break;
+                        }
+
+                        totalBytesRead += bytesRead;
+                    }
+
+                    if (totalBytesRead == packetLength)
+                    {
+                        // 3. 데이터를 문자열로 변환 (JSON 디코딩)
+                        string jsonPacket = Constants.Packet.encoding.GetString(dataBuffer);
+
+                        // 4. 패킷 처리 로직 호출
+                        ProcessPacket(jsonPacket);
+                    }
+                    else
+                    {
+                        DebugMsg("패킷 크기 불일치: 수신된 데이터가 예상보다 작습니다.");
+                    }
+                    */
+                    string? request = await reader.ReadLineAsync(); // 서버로부터 메시지 수신
+                    DebugMsg($"request: {request}");
+                    String2Packet(request);
+         
+                    // string jsonPacket = Constants.Packet.encoding.GetString(dataBuffer);
+                    // ProcessPacket(jsonPacket);
+                }
+            }
+            catch (Exception ex)
+            {
+                DebugMsg($"수신 중 오류 발생: {ex.Message}");
+            }
+        }
+        public async void SendPacketAsync(IPacket packet)
+        {
+            if (_writer != null)
+            {
+                try
+                {
+                    DebugMsg($"Client Sent packet:{packet.type}");
+                    // old one
+                    string jsonPacket = PacketHelper.Serialize(packet);
+                    byte[] buffer = Constants.Packet.encoding.GetBytes(jsonPacket);
+                    await stream.WriteAsync(buffer, 0, buffer.Length);
+                    
+
+                    // string jsonPacket = PacketHelper.Serialize(packet);
+                    // byte[] data = Constants.Packet.encoding.GetBytes(jsonPacket);
+                    // int length = data.Length;
+
+                    // // 패킷 길이(4바이트)를 먼저 보냄
+                    // byte[] lengthBytes = BitConverter.GetBytes(length);
+                    // await _writer.BaseStream.WriteAsync(lengthBytes, 0, lengthBytes.Length);
+
+                    // // 메시지를 전송
+                    // await _writer.WriteAsync(jsonPacket);
+                    // await _writer.FlushAsync(); // 스트림 비우기
+                }
+                catch (System.Exception)
+                {
+                    
+                    throw;
+                }
+            }
+            else
+            {
+                DebugMsg("Do RequestHandler.CreateAsync(User) First!");
+            }
+        }
 
         /// <summary>
         /// 받은 string을 패킷으로 Deserialize
         /// </summary>
         /// <param name="jsonPacket"></param>
-        private void ProcessPacket(string jsonPacket)
+        private void String2Packet(string jsonPacket)
         {
             try
             {
                 IPacket packet = PacketHelper.Deserialize(jsonPacket);
                 // 패킷 처리 로직 구현
-                PacketHandler packetHandler = new PacketHandler(server, packet, this);
+                HandlePacketType(packet);
                 UnityEngine.Debug.Log($"Packet: {packet.type}, {packet.data}");
             }
             catch (System.Exception)
             {
-                
                 throw;
             }  
         }
+
+        private void HandlePacketType(IPacket packet)
+        {
+            switch (packet.type)
+            {
+                case PacketType.__FirstJoin:
+                    DefineUser();
+                    break;
+                case PacketType.__LobbyData:
+                    break;
+                case PacketType.__LobbyList:
+                    break;
+                case PacketType._StartJoin:
+                    //서버에 접속할 때
+                    if(packet.id == Guid.Empty)
+                        DefineUser();
+                    break;
+                case PacketType._EndJoin:
+                    //서버에서 퇴장
+                    this.Close();
+                    break;
+                case PacketType._CreateLobby:
+                    //로비 생성
+                    string roomName = (string)packet.data;
+                    if(string.IsNullOrEmpty(roomName))
+                        roomName = $"{UserList.Instance.ReadUser(packet.id).nickName}'s Lobby";
+
+                    SendLobbyData(server.CreateLobby(roomName, 4, packet.id).data);
+                    break;
+                case PacketType._JoinLobby:
+                    //packet.data로 LobbyID를 받기
+                    //이후 Lobby에 해당 유저 넣기
+                    server.JoinLobby((Guid)packet.data, this);
+                    break;
+                case PacketType._LeaveLobby:
+                    //packet.data로 LobbyID를 받기
+                    //이후 Lobby에 해당 유저 삭제
+                    server.LeaveLobby((Guid)packet.data, this);
+                    break;
+                case PacketType._Answer:
+                    ReceivedAnswer();
+                    break;
+                case PacketType._SendLobbyMessege:
+                    break;
+                case PacketType._UpdateUserData:
+                    User user = (User)packet.data;
+                    UserList.Instance.UpdateUser(user);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+
+        #region IResponse구현
+        //양방향
+        public void DefineUser()
+        {
+            User newUser = UserList.Instance.CreateNewUser();
+            IPacket packet = new(PacketType.__FirstJoin, newUser, Guid.Empty);
+            SendPacketAsync(packet);
+        }
+        public void SendLobbyList(List<Lobby.LobbyData> lobbyList)
+        {
+            IPacket packet = new(PacketType.__FirstJoin, lobbyList, Guid.Empty);
+            SendPacketAsync(packet);
+        }
+        public void SendLobbyData(LobbyData lobbyData)
+        {
+            IPacket packet = new(PacketType.__LobbyData, lobbyData, Guid.Empty);
+            SendPacketAsync(packet);
+        }
+        //단방향 broadcasting
+        //Lobby
+        public void Booted()
+        {
+
+        }
+        public void LobbyMessege(string who, string message)
+        {
+
+        }
+        //In Game
+        public void GameStarted()
+        {
+
+        }
+        public void ReceivedAnswer()
+        {
+
+        }
+        public void LastTimer()
+        {
+
+        }
+        #endregion
     }
 }

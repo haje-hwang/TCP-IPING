@@ -13,16 +13,18 @@ namespace Lobby
     }
     public class LobbyData
     {
-        public UID uid { get; private set; }    
+        public Guid host {get; set;}
+        public Guid uid { get; private set; }    
         public string name { get; private set; }
         public int maxPlayers { get; private set; }
         public LobbyMode state { get; private set; }
         public List<User> players { get; private set; }
-        public LobbyData(UID uid, string name, int maxPlayers, LobbyMode mode = LobbyMode.PUBLIC)
+        public LobbyData(Guid uid, string name, int maxPlayers, Guid host, LobbyMode mode = LobbyMode.PUBLIC)
         {
             this.uid = uid;
             this.name = name;
             this.maxPlayers = maxPlayers;
+            this.host = host;
             players = new List<User>();
             state = mode;
         }
@@ -51,22 +53,22 @@ namespace Lobby
             if (clients.Count < data.maxPlayers)
             {
                 clients.Add(player);
-                OnLobbyJoined?.Invoke(player.user);
+                // OnLobbyJoined?.Invoke();
                 return true;
             }
             return false;
         }
         public void RemovePlayer(ClientHandler player)
         {
-            OnLobbyExited?.Invoke(player.user);
+            // OnLobbyExited?.Invoke(player.user);
             clients.Remove(player);
         }
         //
-        public void BroadcastMessage(string message)
+        public void BroadcastPacket(IPacket packet)
         {
             foreach (var client in clients)
             {
-                client.SendMessage(message);
+                client.SendPacketAsync(packet);
             }
         }
         // 기타 로비 관련 메서드들...

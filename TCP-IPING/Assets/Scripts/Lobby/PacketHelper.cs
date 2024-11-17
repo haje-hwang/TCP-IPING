@@ -12,4 +12,12 @@ public class PacketHelper
     {
         return JsonConvert.DeserializeObject<IPacket>(json);
     }
+
+    public static bool isBidirectional(PacketType type) => type switch
+    {
+        PacketType.__FirstJoin => true,
+        PacketType.__LobbyData => true,
+        PacketType.__LobbyList => true,
+        _ => false
+    };
 }

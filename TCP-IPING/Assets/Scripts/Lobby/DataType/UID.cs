@@ -1,11 +1,13 @@
 using System;
+using System.Threading;
 
 public class UID
 {
     // 내부적으로 uint 값 저장
     private readonly uint _value;
+    private static readonly ThreadLocal<Random> _random = new ThreadLocal<Random>(() => new Random());
 
-    // 생성자 (private) - NewGuid를 통해서만 인스턴스를 생성
+    // 생성자 (private) - NewUID를 통해서만 인스턴스를 생성
     private UID(uint value)
     {
         _value = value;
@@ -16,15 +18,17 @@ public class UID
     {
         // 현재 시간의 Ticks 값 (long)에서 마지막 32비트를 사용
         long ticks = DateTime.UtcNow.Ticks;
-        
+
         // 시간 값과 랜덤 값 결합하여 고유한 uint 생성
-        Random random = new Random();
-        uint randomValue = (uint)random.Next(int.MinValue, int.MaxValue);
+        uint randomValue = (uint)_random.Value.Next(int.MinValue, int.MaxValue);
 
         // 마지막 32비트에 랜덤 값을 결합 (시간 기반 + 랜덤)
         uint value = (uint)(ticks & 0xFFFFFFFF) ^ randomValue;
-
         return new UID(value);
+    }
+    public static UID Empty()
+    {
+        return new UID(0);
     }
 
     // 내부 값을 반환
