@@ -89,7 +89,7 @@ public class RoomTimer : MonoBehaviour
         ResetTimer();
 
         timerCount++;
-        if (timerCount >= 5)
+        if (timerCount >= 2)
         {
             rankingPanel.SetActive(true);  // 랭킹 패널을 보이게 함
         }
