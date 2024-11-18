@@ -122,7 +122,7 @@ public class ClientHandler
             while ((bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length)) != 0)
             {
                 string message = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-                Console.WriteLine($"[Server] Received from {clientId}: {message}");
+                Console.WriteLine($"[Server] Received from {clientId}:{message}");
 
                 // 처리 로직 예시: Echo 또는 Broadcast
                 if (message.StartsWith("LOBBY:"))

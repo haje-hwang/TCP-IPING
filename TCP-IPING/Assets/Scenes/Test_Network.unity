@@ -740,8 +740,8 @@ RectTransform:
   - {fileID: 407607789}
   - {fileID: 1443217244}
   - {fileID: 2097798643}
-  - {fileID: 1472368647}
   - {fileID: 1000288659}
+  - {fileID: 1472368647}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -1029,16 +1029,16 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2116208872}
-        m_TargetAssemblyTypeName: QuizClient, Assembly-CSharp
-        m_MethodName: SetNickname
+      - m_Target: {fileID: 2116208874}
+        m_TargetAssemblyTypeName: UnityTcpClient, Assembly-CSharp
+        m_MethodName: SendMessageToServer
         m_Mode: 5
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: 1
+          m_StringArgument: NickName:SET
           m_BoolArgument: 0
         m_CallState: 2
 --- !u!114 &1000288661
@@ -1355,6 +1355,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
+      - m_Target: {fileID: 2116208874}
+        m_TargetAssemblyTypeName: UnityTcpClient, Assembly-CSharp
+        m_MethodName: SendMessageToServer
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: LOBBY:CREATE
+          m_BoolArgument: 0
+        m_CallState: 2
       - m_Target: {fileID: 2116208870}
         m_TargetAssemblyTypeName: LoginManager, Assembly-CSharp
         m_MethodName: OnCreateRoom
@@ -1365,18 +1377,6 @@ MonoBehaviour:
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 2116208872}
-        m_TargetAssemblyTypeName: QuizClient, Assembly-CSharp
-        m_MethodName: CreateRoom
-        m_Mode: 5
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 1
           m_BoolArgument: 0
         m_CallState: 2
 --- !u!1 &1472368644
@@ -2298,16 +2298,16 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2116208868}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: 
-        m_Mode: 1
+      - m_Target: {fileID: 2116208874}
+        m_TargetAssemblyTypeName: UnityTcpClient, Assembly-CSharp
+        m_MethodName: SendMessageToServer
+        m_Mode: 5
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: 
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: 
+          m_StringArgument: LOBBY:JOIN
           m_BoolArgument: 0
         m_CallState: 2
 --- !u!1 &2116208868
@@ -2320,8 +2320,8 @@ GameObject:
   m_Component:
   - component: {fileID: 2116208871}
   - component: {fileID: 2116208870}
-  - component: {fileID: 2116208872}
   - component: {fileID: 2116208873}
+  - component: {fileID: 2116208874}
   m_Layer: 0
   m_Name: LoginManager
   m_TagString: Untagged
@@ -2344,8 +2344,10 @@ MonoBehaviour:
   nicknameInputField: {fileID: 407607792}
   RoomCreate: {fileID: 1443217247}
   RoomJoin: {fileID: 2097798646}
-  RoomJoinInput: {fileID: 1506017080}
-  panel: {fileID: 1472368644}
+  RoomJoinInput: {fileID: 0}
+  panel: {fileID: 0}
+  RoomJoinX: {fileID: 0}
+  RoomJoinConfirm: {fileID: 0}
 --- !u!4 &2116208871
 Transform:
   m_ObjectHideFlags: 0
@@ -2361,19 +2363,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2116208872
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2116208868}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d6d250b256bf75a468461016e1832950, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  name: {fileID: 407607792}
 --- !u!114 &2116208873
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2388,6 +2377,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   serverAddress: 27.113.62.74
   port: 5000
+--- !u!114 &2116208874
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2116208868}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed581503bd4d7184a8f2035d9a2b2826, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  serverIP: 27.113.62.74
+  serverPort: 5000
 --- !u!1 &2133341624
 GameObject:
   m_ObjectHideFlags: 0
