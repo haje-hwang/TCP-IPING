@@ -154,7 +154,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f84618e36fc57a41b20dfea5d71498b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  timerDuration: 10
+  timerDuration: 5
   timerText: {fileID: 2128736596}
   questionPanel: {fileID: 748070017}
   answerButtons:
@@ -162,6 +162,7 @@ MonoBehaviour:
   - {fileID: 777738433}
   - {fileID: 1863092390}
   - {fileID: 1519835748}
+  rankingPanel: {fileID: 749472770}
 --- !u!114 &15229623
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1154,7 +1155,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &749472771
 RectTransform:
   m_ObjectHideFlags: 0
