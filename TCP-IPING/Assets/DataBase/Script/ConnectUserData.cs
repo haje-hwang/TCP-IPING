@@ -42,7 +42,7 @@ public class ConnectUser : MonoBehaviour
         {
             //일단은 디버그 로그로 출력 
             UnityEngine.Debug.Log($"아이디: {user["id"]}");
-            UnityEngine.Debug.Log($"이름: {user["Name"]}");
+            UnityEngine.Debug.Log($"이름: {user["nickName"]}");
         }
     }
 }
