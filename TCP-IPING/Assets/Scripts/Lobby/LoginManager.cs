@@ -49,8 +49,8 @@ public class LoginManager : MonoBehaviour
 
     void OnJoinRoom()
     {
-        // 닉네임이 비어있지 않으면 WaitingRoom 씬으로 이동
-        
+
+        SaveNickname();
         panel.SetActive(true);  // Panel을 다시 보이게 함
        
 

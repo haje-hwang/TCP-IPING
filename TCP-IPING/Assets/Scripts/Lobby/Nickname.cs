@@ -1,11 +1,11 @@
 using UnityEngine;
 using UnityEngine.UI; // Text를 사용할 경우
-using TMPro; // TextMeshPro를 사용할 경우 주석 해제
+using TMPro; 
 
 public class Nickname : MonoBehaviour
 {
     
-    public TMP_Text nicknameText; // TextMeshPro를 사용할 경우 주석 해제
+    public TMP_Text nicknameText; 
 
     void Start()
     {

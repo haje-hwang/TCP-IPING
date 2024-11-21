@@ -303,7 +303,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f9798fc2342442b4c9e9445e3f7aaf25, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nicknameText: {fileID: 1219015393}
+  nicknameText: {fileID: 799734200}
 --- !u!4 &392113207
 Transform:
   m_ObjectHideFlags: 0
@@ -1129,12 +1129,12 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2117042277}
-  - {fileID: 1794246195}
-  - {fileID: 1573885927}
-  - {fileID: 11527348}
-  - {fileID: 1605739594}
   - {fileID: 331965091}
   - {fileID: 1254862905}
+  - {fileID: 1573885927}
+  - {fileID: 1794246195}
+  - {fileID: 11527348}
+  - {fileID: 1605739594}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
