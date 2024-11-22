@@ -625,6 +625,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   inputField: {fileID: 1043117285}
   sendButton: {fileID: 995246949}
+  minwoo_client: {fileID: 964262924}
   client: {fileID: 502506903}
 --- !u!1 &502506901
 GameObject:
@@ -670,7 +671,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3aacdddefcf907749ae2f6a70cfec34c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  IP: 127.0.0.1
+  IP: 27.113.62.74
   PORT: 5000
   isTestRunning: 0
   uid: {fileID: 1257508492}
