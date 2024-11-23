@@ -91,5 +91,18 @@ namespace Lobby
         {
             return FindLobby(lobbyCode)?.RemovePlayer(client) ?? false;
         }
+        //  public List<Question> GetQuestions(string category = null, string difficulty = null)
+        // {
+        //     // 카테고리와 난이도에 따른 문제 필터링
+        //     return m_questions; // 필요 시 필터 조건 추가
+        // }
+
+        public int UpdateScore(Guid clientId, bool isCorrect)
+        {
+            if (isCorrect)
+                m_scores[clientId] = m_scores.GetValueOrDefault(clientId, 0) + 10;
+
+            return m_scores[clientId];
+        }
     }
 }

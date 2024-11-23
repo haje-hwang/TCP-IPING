@@ -95,6 +95,52 @@ public class ConnectQuiz : MonoBehaviour
             UnityEngine.Debug.Log("---------------");
         }
     }
+    public List<Question> FetchFilteredQuestions(string category, string difficulty, int limit = 10)
+    {
+        if (_quizCollection == null)
+        {
+            UnityEngine.Debug.LogError("퀴즈 컬렉션이 설정되지 않았습니다.");
+            return null;
+        }
+
+        UnityEngine.Debug.Log($"카테고리: {category}, 난이도: {difficulty}에 맞는 데이터를 가져옵니다...");
+
+        var filter = Builders<BsonDocument>.Filter.Empty;
+
+        // 카테고리 필터 추가
+        if (!string.IsNullOrEmpty(category))
+        {
+            filter &= Builders<BsonDocument>.Filter.Eq("category", category);
+        }
+
+        // 난이도 필터 추가
+        if (!string.IsNullOrEmpty(difficulty))
+        {
+            filter &= Builders<BsonDocument>.Filter.Eq("difficulty", difficulty);
+        }
+
+        // 데이터 가져오기
+        var documents = _quizCollection.Find(filter).Limit(limit).ToList();
+
+        var filteredQuestions = new List<Question>();
+
+        foreach (var doc in documents)
+        {
+            try
+            {
+                // BsonDocument를 Question 객체로 변환
+                var question = doc.ToObject<Question>();
+                filteredQuestions.Add(question);
+            }
+            catch (System.Exception ex)
+            {
+                UnityEngine.Debug.LogError($"문서 변환 중 오류 발생: {ex.Message}");
+            }
+        }
+
+        UnityEngine.Debug.Log($"필터링된 질문 {filteredQuestions.Count}개를 가져왔습니다.");
+        return filteredQuestions;
+    }
 }
 
 // BsonDocument를 특정 객체로 변환하는 확장 메서드
