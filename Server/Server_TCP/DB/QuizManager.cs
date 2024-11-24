@@ -45,7 +45,7 @@ namespace Server_TCP.Quiz
             // 모든 클라이언트에게 패킷 전송
             foreach (var client in clients)
             {
-                await client.SendPacketAsync(packet);
+                client.SendPacketAsync(packet);
             }
 
             Console.WriteLine("문제 데이터가 모든 클라이언트에게 전송되었습니다.");
@@ -86,7 +86,7 @@ namespace Server_TCP.Quiz
                 if (AllPlayersCompleted(clients))
                 {
                     Console.WriteLine("모든 플레이어가 문제를 완료했습니다. 결과를 브로드캐스트합니다.");
-                    await BroadcastScores(clients);
+                    BroadcastScores(clients);
                 }
             }
         }
@@ -101,13 +101,13 @@ namespace Server_TCP.Quiz
         }
 
         // 점수 브로드캐스트
-        private async Task BroadcastScores(List<ClientHandler> clients)
+        private async void BroadcastScores(List<ClientHandler> clients)
         {
             var scorePacket = new IPacket(PacketType.GameData, playerScores, Guid.Empty); // 서버에서 보냄
 
             foreach (var client in clients)
             {
-                await client.SendPacketAsync(scorePacket);
+                client.SendPacketAsync(scorePacket);
             }
 
             Console.WriteLine("모든 클라이언트에게 점수 데이터가 전송되었습니다.");
