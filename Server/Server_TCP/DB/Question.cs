@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 
-public struct Question
-{
-    public int id { get; set; }
-    public string question { get; set; }
-    public List<string> options { get; set; }
-    public int answer { get; set; }
-    public string category { get; set; }
-    public string difficulty { get; set; }
-}
+    public class Question
+    {
+        public Guid Id { get; set; }
+        public string Text { get; set; }
+        public List<string> Options { get; set; }
+        public int Answer { get; set; }
+        public string Category { get; set; }
+        public string Difficulty { get; set; }
+    }
