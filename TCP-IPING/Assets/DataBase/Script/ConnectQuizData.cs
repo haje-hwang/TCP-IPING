@@ -13,10 +13,11 @@ public class ConnectQuiz : MonoBehaviour
     void Start()
     {
         // Quiz 초기화
+        cNum = 0;
         quiz = new Quiz();
         quiz.Initialize(); // 리스트 초기화
         // MongoDB 데이터베이스 연결
-        ConnectToDatabase("Quiz",0);
+        ConnectToDatabase("Quiz");
 
         // 질문 데이터 가져오기
         FetchAllQuestions();
@@ -55,13 +56,57 @@ public class ConnectQuiz : MonoBehaviour
             UnityEngine.Debug.LogError("퀴즈 컬렉션을 가져오는 데 실패했습니다.");
             }
     }
+    private void UpdateQuizCollection()
+    {
+        // cNum 값에 따라 컬렉션 설정
+        switch (cNum)
+        {
+            case 0:
+                _quizCollection = _database.GetCollection<BsonDocument>("기술");
+                break;
+            case 1:
+                _quizCollection = _database.GetCollection<BsonDocument>("문화");
+                break;
+            case 2:
+                _quizCollection = _database.GetCollection<BsonDocument>("스포츠");
+                break;
+            case 3:
+                _quizCollection = _database.GetCollection<BsonDocument>("역사");
+                break;
+            case 4:
+                _quizCollection = _database.GetCollection<BsonDocument>("영화");
+                break;
+            default:
+                UnityEngine.Debug.LogError("유효하지 않은 카테고리 번호입니다.");
+                return;
+        }
 
+        if (_quizCollection == null)
+        {
+            UnityEngine.Debug.LogError("퀴즈 컬렉션을 가져오는 데 실패했습니다.");
+        }
+        else
+        {
+            UnityEngine.Debug.Log($"'{cNum}'에 해당하는 컬렉션이 설정되었습니다.");
+        }
+    }
+
+    public void ChangeCategory(int categoryNumber)
+    {
+        cNum = categoryNumber; // cNum 값을 변경
+        UpdateQuizCollection(); // 변경된 cNum에 따라 컬렉션 업데이트
+        FetchAllQuestions(); // 새로운 카테고리의 질문 가져오기
+    }
     private void FetchAllQuestions()
     {
         if (_quizCollection == null)
         {
             UnityEngine.Debug.LogError("퀴즈 컬렉션이 설정되지 않았습니다.");
             return;
+        }
+        if (quiz.questions.Count > 1) // 리스트의 항목 개수 확인
+        {
+            quiz.questions.Clear(); // 리스트를 초기화
         }
 
         UnityEngine.Debug.Log("퀴즈 컬렉션에서 데이터를 가져옵니다...");
