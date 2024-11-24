@@ -10,6 +10,10 @@ public class ConnectQuiz : MonoBehaviour
     private IMongoCollection<BsonDocument> _quizCollection;
     public Quiz quiz;
     private int cNum;
+    private void Awake()
+    {
+        DontDestroyOnLoad(gameObject); // 씬 전환 후에도 유지
+    }
     void Start()
     {
         // Quiz 초기화
