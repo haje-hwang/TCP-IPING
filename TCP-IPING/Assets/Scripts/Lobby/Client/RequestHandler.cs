@@ -54,7 +54,8 @@ public class RequestHandler : IRequest
 
         DebugMsg("Disconnected from the server.");
     }
-
+    
+#region 클라이언트 측 통신 구현
     private async Task Start()
     {
         DebugMsg("클라이언트 시작.");
@@ -263,8 +264,9 @@ public class RequestHandler : IRequest
         DebugMsg($"## responsePacket?.data: {responsePacket.data}");
         return responsePacket.data; // 응답 패킷의 데이터 반환 (응답이 없으면 null 반환)
     }
+#endregion
 
-
+#region 서버에서 받은 패킷 처리
     /// <summary>
     /// 서버에게 받은 패킷 처리 (요청-응답 패킷 제외)
     /// </summary>
@@ -296,8 +298,9 @@ public class RequestHandler : IRequest
             throw;
         }  
     }
+#endregion
 
-    #region IRequest 구현
+#region IRequest 구현
     public async Task<Guid> FirstJoin()
     {
         IPacket senderPacket = new IPacket(PacketType.__FirstJoin, null, Guid.Empty);
@@ -317,7 +320,7 @@ public class RequestHandler : IRequest
     {
         IPacket senderPacket= new IPacket(PacketType.__LobbyData, null, m_user.id);
         object receivedData = await SendAndWaitPacketAsync(senderPacket); 
-        return JsonHelper<Lobby.LobbyData>.Deserialize((string)receivedData); 
+        return JsonHelper<Lobby.LobbyData>.Deserialize((string)receivedData);
     }
     public async void StartJoin()
     {
@@ -342,22 +345,22 @@ public class RequestHandler : IRequest
     }
     public async void JoinLobby(Guid lobbyID)
     {
-        IPacket packet = new IPacket(PacketType._UpdateUserData, lobbyID, m_user.id);
+        IPacket packet = new IPacket(PacketType._JoinLobby, lobbyID, m_user.id);
         await SendPacketAsync(packet);
     }
     public async void LeaveLobby()
     {
-        IPacket packet = new IPacket(PacketType._UpdateUserData, null, m_user.id);
+        IPacket packet = new IPacket(PacketType._LeaveLobby, null, m_user.id);
         await SendPacketAsync(packet);
     }
     public async void LobbyReady(bool ReadyState)
     {
-        IPacket packet = new IPacket(PacketType._UpdateUserData, ReadyState, m_user.id);
+        IPacket packet = new IPacket(PacketType._LobbyReady, ReadyState, m_user.id);
         await SendPacketAsync(packet);
     }
     public async void SendLobbyMessege(string messege)
     {
-        IPacket packet = new IPacket(PacketType._UpdateUserData, messege, m_user.id);
+        IPacket packet = new IPacket(PacketType._SendLobbyMessege, messege, m_user.id);
         await SendPacketAsync(packet);
     }
     //In Game
@@ -366,5 +369,5 @@ public class RequestHandler : IRequest
         IPacket packet = new IPacket(PacketType._Answer, answer, m_user.id);
         await SendPacketAsync(packet);
     }
-    #endregion
+#endregion
 }

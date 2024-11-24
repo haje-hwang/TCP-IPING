@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Server_TCP")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1be284f1fdcd90bf0a1e84f03fd8d74946e90d73")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+80e08bcfe59809febeb05c80559b1cb2ed17351d")]
 [assembly: System.Reflection.AssemblyProductAttribute("Server_TCP")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Server_TCP")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

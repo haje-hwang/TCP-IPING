@@ -20,6 +20,7 @@ public enum PacketType
     _JoinLobby, // 로비 참가 패킷, data로 참가할 로비 이름 정의해서 보내기
     _LeaveLobby, // 로비 퇴장 패킷
     _SendLobbyMessege,   //로비 메시지(로비 채팅 기능이 있으면)
+    _LobbyReady,    //로비에서 본인의 플레이 준비 상태 전송
         //In Game
     _Answer, //문제 답변
     _GameData,   //게임 정보 (각 유저 점수 순위)

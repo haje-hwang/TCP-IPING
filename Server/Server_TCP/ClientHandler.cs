@@ -4,8 +4,9 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using Server_TCP;
+using Server_TCP.Lobby;
 
-namespace Lobby
+namespace Server_TCP
 {
     public class ClientHandler : IResponse
     {
@@ -32,6 +33,10 @@ namespace Lobby
 
             m_server.ServerExit(this);
             Debug.Log($"Client {m_user?.id} disconnected.");
+        }
+        public User GetUser()
+        {
+            return m_user;
         }
         public async Task Start()
         {
@@ -205,12 +210,12 @@ namespace Lobby
                 case PacketType._JoinLobby:
                     //packet.data로 LobbyID를 받기
                     //이후 Lobby에 해당 유저 넣기
-                    m_server.JoinLobby((Guid)packet.data, this);
+                    m_server.JoinLobby((Guid)packet.data, this, m_user);
                     break;
                 case PacketType._LeaveLobby:
                     //packet.data로 LobbyID를 받기
                     //이후 Lobby에 해당 유저 삭제
-                    m_server.LeaveLobby((Guid)packet.data, this);
+                    m_server.LeaveLobby((Guid)packet.data, this, m_user);
                     break;
                 case PacketType._Answer:
                     ReceivedAnswer();
@@ -238,7 +243,7 @@ namespace Lobby
             IPacket packet = new(PacketType.__FirstJoin, id, Guid.Empty);
             SendPacketAsync(packet);
         }
-        public void SendLobbyList(List<Lobby.LobbyData> lobbyList)
+        public void SendLobbyList(List<LobbyData> lobbyList)
         {
             IPacket packet = new(PacketType.__FirstJoin, lobbyList, Guid.Empty);
             SendPacketAsync(packet);

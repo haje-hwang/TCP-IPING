@@ -6,20 +6,20 @@ using System.Linq;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using Server_TCP;
+using Server_TCP.Quiz;
 
-namespace Lobby
+namespace Server_TCP.Lobby
 {
     public class LobbyServer
     {
         public bool isRunning ;
+        public UserList userList = new();
 
         private int _PORT;
         private TcpListener listener;
-        //private ConcurrentDictionary<Guid, ClientHandler> clientMap = new();
         private List<ClientHandler> clients = new();
-
         private ConcurrentDictionary<Guid, GameLobby> lobbyMap = new();
-        public UserList userList = new();
+        private QuizManager quizManager = new();
         //Events
         // public delegate void UserJoin(User joinedUser);
         // public delegate void UserExit(User exitedUser);
@@ -63,6 +63,10 @@ namespace Lobby
                 client.SendPacketAsync(packet);
             }
         }
+        public bool ServerEnter(ClientHandler client)
+        {
+            return false;
+        }
 
         public bool ServerExit(ClientHandler client)
         {
@@ -83,13 +87,13 @@ namespace Lobby
             //return lobbies.FirstOrDefault(lobby => lobby.data.uid == uid);
             return lobbyMap[uid];
         } 
-        public bool JoinLobby(Guid lobbyCode, ClientHandler client)
+        public bool JoinLobby(Guid lobbyCode, ClientHandler client, User user)
         {
-            return FindLobby(lobbyCode)?.AddPlayer(client) ?? false;
+            return FindLobby(lobbyCode)?.AddPlayer(client, user) ?? false;
         }
-        public bool LeaveLobby(Guid lobbyCode, ClientHandler client)
+        public bool LeaveLobby(Guid lobbyCode, ClientHandler client, User user)
         {
-            return FindLobby(lobbyCode)?.RemovePlayer(client) ?? false;
+            return FindLobby(lobbyCode)?.RemovePlayer(client, user) ?? false;
         }
         //  public List<Question> GetQuestions(string category = null, string difficulty = null)
         // {
