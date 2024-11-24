@@ -9,14 +9,14 @@ public class ConnectQuiz : MonoBehaviour
     private IMongoDatabase _database;
     private IMongoCollection<BsonDocument> _quizCollection;
     public Quiz quiz;
-
+    private int cNum;
     void Start()
     {
         // Quiz 초기화
         quiz = new Quiz();
         quiz.Initialize(); // 리스트 초기화
         // MongoDB 데이터베이스 연결
-        ConnectToDatabase("Quiz");
+        ConnectToDatabase("Quiz",0);
 
         // 질문 데이터 가져오기
         FetchAllQuestions();
@@ -32,12 +32,28 @@ public class ConnectQuiz : MonoBehaviour
 
         _database = MongoDBAccess.Instance.Client.GetDatabase(databaseName);
         UnityEngine.Debug.Log($"데이터베이스 '{databaseName}' 연결 성공!");
-
-        _quizCollection = _database.GetCollection<BsonDocument>("기술");
-        if (_quizCollection == null)
+            switch (cNum)
         {
-            UnityEngine.Debug.LogError("퀴즈 컬렉션을 가져오는 데 실패했습니다.");
+            case 0:
+                _quizCollection = _database.GetCollection<BsonDocument>("기술");
+                break;
+            case 1:
+                _quizCollection = _database.GetCollection<BsonDocument>("문화");
+                break;
+            case 2:
+                _quizCollection = _database.GetCollection<BsonDocument>("스포츠");
+                break;
+            case 3:
+                _quizCollection = _database.GetCollection<BsonDocument>("역사");
+                break;
+            case 4:
+                _quizCollection = _database.GetCollection<BsonDocument>("영화");
+                break;
         }
+            if (_quizCollection == null)
+            {
+            UnityEngine.Debug.LogError("퀴즈 컬렉션을 가져오는 데 실패했습니다.");
+            }
     }
 
     private void FetchAllQuestions()
