@@ -348,7 +348,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &135601373
 RectTransform:
   m_ObjectHideFlags: 0
@@ -887,6 +887,7 @@ GameObject:
   - component: {fileID: 392113207}
   - component: {fileID: 392113206}
   - component: {fileID: 392113208}
+  - component: {fileID: 392113209}
   m_Layer: 0
   m_Name: GameObject
   m_TagString: Untagged
@@ -937,6 +938,19 @@ MonoBehaviour:
   categoryPanel: {fileID: 135601372}
   categoryButton: {fileID: 371439951}
   closePanelButton: {fileID: 1415453943}
+--- !u!114 &392113209
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 392113205}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f75126a2613f944589991209cb8b802, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  roomNameText: {fileID: 1845337262}
 --- !u!1 &531936049
 GameObject:
   m_ObjectHideFlags: 0
@@ -1099,7 +1113,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 11b1f1b71e68bc8429f0576f81fc2954, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  quizData: {fileID: 8014741725866154629, guid: a1bd98e249606e84cb1176b81b8d9904, type: 3}
 --- !u!4 &551064421
 Transform:
   m_ObjectHideFlags: 0

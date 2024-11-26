@@ -2,6 +2,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using System;
 
 public class LoginManager : MonoBehaviour
 {
@@ -39,8 +40,13 @@ public class LoginManager : MonoBehaviour
         // 닉네임이 비어있지 않으면 WaitingRoom 씬으로 이동
         if (!string.IsNullOrEmpty(playerNickname))
         {
+            // 방 생성 요청 (서버와 연결)
+            RequestHandlerManager.Instance.CreateRoom();
+
+            // WaitingScene으로 이동
             SceneManager.LoadScene("WaitingScene");
         }
+
         else
         {
             Debug.LogWarning("닉네임을 입력해주세요.");
@@ -71,6 +77,12 @@ public class LoginManager : MonoBehaviour
         if (!string.IsNullOrEmpty(roomNumber))
         {
             Debug.Log($"방 번호 {roomNumber}로 이동합니다.");
+
+            string formattedRoomNumber = roomNumber.PadLeft(32, '0');  // 4자리 숫자 -> 32자리로 포매팅
+            Guid roomID = new Guid(formattedRoomNumber);  // 방 번호를 Guid로 변환
+            RequestHandlerManager.Instance.JoinRoom(roomID);  // 서버에 방 입장 요청
+
+            // WaitingScene으로 이동
             SceneManager.LoadScene("WaitingScene");
         }
         else
