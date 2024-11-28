@@ -6,20 +6,18 @@ using System;
 
 public class LoginManager : MonoBehaviour
 {
-    public TMP_InputField nicknameInputField; // 닉네임 입력 필드
-    public Button RoomCreate;  // 방 만들기 버튼
-    public Button RoomJoin;    // 방 입장 버튼
+    public TMP_InputField nicknameInputField;
+    public Button RoomCreate;
+    public Button RoomJoin;
     public TMP_InputField RoomJoinInput;
     public GameObject panel;
     public Button RoomJoinX;
     public Button RoomJoinConfirm;
 
-
     private string playerNickname;
 
     void Start()
     {
-        // 버튼 클릭 시 호출할 함수 연결
         RoomCreate.onClick.AddListener(OnCreateRoom);
         RoomJoin.onClick.AddListener(OnJoinRoom);
         RoomJoinConfirm.onClick.AddListener(OnConfirmJoinRoom);
@@ -29,7 +27,7 @@ public class LoginManager : MonoBehaviour
     public void SaveNickname()
     {
         playerNickname = nicknameInputField.text;
-        PlayerPrefs.SetString("PlayerNickname", playerNickname); // 닉네임을 저장
+        PlayerPrefs.SetString("PlayerNickname", playerNickname);
         Debug.Log("닉네임 저장됨: " + playerNickname);
     }
 
@@ -37,16 +35,11 @@ public class LoginManager : MonoBehaviour
     {
         SaveNickname();
 
-        // 닉네임이 비어있지 않으면 WaitingRoom 씬으로 이동
         if (!string.IsNullOrEmpty(playerNickname))
         {
-            // 방 생성 요청 (서버와 연결)
-            RequestHandlerManager.Instance.CreateRoom();
-
-            // WaitingScene으로 이동
-            SceneManager.LoadScene("WaitingScene");
+            RequestHandlerManager.Instance.CreateRoom(); // 방 생성 요청
+            SceneManager.LoadScene("WaitingScene"); // 대기실로 이동
         }
-
         else
         {
             Debug.LogWarning("닉네임을 입력해주세요.");
@@ -55,41 +48,37 @@ public class LoginManager : MonoBehaviour
 
     void OnJoinRoom()
     {
-
         SaveNickname();
-        panel.SetActive(true);  // Panel을 다시 보이게 함
-       
-
+        panel.SetActive(true); // 방 번호 입력 UI 표시
     }
 
     public void OnRoomJoinX()
     {
- 
-        panel.SetActive(false); // 패널 숨김
+        panel.SetActive(false); // 방 번호 입력 UI 숨김
     }
 
     public void OnConfirmJoinRoom()
     {
-        Debug.Log("입장 버튼 클릭됨");
-        // 방 번호 입력 확인
         string roomNumber = RoomJoinInput.text;
 
         if (!string.IsNullOrEmpty(roomNumber))
         {
-            Debug.Log($"방 번호 {roomNumber}로 이동합니다.");
+            try
+            {
+                string formattedRoomNumber = roomNumber.PadLeft(32, '0'); // 4자리 숫자를 32자리로 변환
+                Guid roomID = new Guid(formattedRoomNumber); // 방 번호를 Guid로 변환
+                RequestHandlerManager.Instance.JoinRoom(roomID); // 방 입장 요청
 
-            string formattedRoomNumber = roomNumber.PadLeft(32, '0');  // 4자리 숫자 -> 32자리로 포매팅
-            Guid roomID = new Guid(formattedRoomNumber);  // 방 번호를 Guid로 변환
-            RequestHandlerManager.Instance.JoinRoom(roomID);  // 서버에 방 입장 요청
-
-            // WaitingScene으로 이동
-            SceneManager.LoadScene("WaitingScene");
+                SceneManager.LoadScene("WaitingScene"); // 대기실로 이동
+            }
+            catch (FormatException)
+            {
+                Debug.LogError("잘못된 방 번호 형식입니다. 유효한 숫자를 입력해주세요.");
+            }
         }
         else
         {
             Debug.LogWarning("방 번호를 입력해주세요.");
         }
     }
-
-
 }

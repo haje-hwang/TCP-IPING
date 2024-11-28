@@ -1,17 +1,21 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
 public class RoomName : MonoBehaviour
 {
     public TMP_Text roomNameText;
-    // Start is called before the first frame update
-    void Start()
+
+    private void Start()
     {
-        string roomName = PlayerPrefs.GetString("RoomName", "None");
-        roomNameText.text = "방 번호: " + roomName;
+        UpdateRoomNameUI(); // 초기 UI 세팅
     }
 
- 
+    public void UpdateRoomNameUI()
+    {
+        // PlayerPrefs에서 방 번호 가져오기
+        string roomName = PlayerPrefs.GetString("RoomName", "None");
+        roomNameText.text = "방 번호: " + roomName; // 방 번호 UI 업데이트
+
+        Debug.Log($"RoomName UI Updated: {roomName}");
+    }
 }
