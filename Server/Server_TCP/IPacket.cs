@@ -28,6 +28,7 @@ public enum PacketType
     //서버->클라 패킷 (broadcast만)
     PARDON,    //네가 보냈던 패킷이 이상해서 수행하지 못했다. 다시 보내달라. (data로 Packet 반송)
                //Lobby
+    LobbyUpdate, //로비 정보 업데이트됨 (
     Booted,    //로비 강제퇴장
     LobbyMessege,  //(string who, string messege)
                    //In Game

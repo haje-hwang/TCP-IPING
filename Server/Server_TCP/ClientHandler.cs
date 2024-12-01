@@ -8,20 +8,22 @@ using Server_TCP.Lobby;
 
 namespace Server_TCP
 {
-    public class ClientHandler : IResponse
+    public class ClientHandler
     {
-        LobbyServer m_server;
+        Server_TCP.Lobby.PacketEventDispatcher eventDispatcher;
         private TcpClient m_client;
         private NetworkStream m_stream;
 #nullable enable
         User? m_user;
+        public Guid joindLobbyId;
 #nullable disable
 
-        public ClientHandler(TcpClient client, LobbyServer server)
+        public ClientHandler(TcpClient client, PacketEventDispatcher eventDispatcher)
         {
             this.m_client = client;
-            this.m_server = server;
+            this.eventDispatcher = eventDispatcher;
             m_stream = m_client.GetStream();
+            joindLobbyId = Guid.Empty;
         }
         public void Disconnect()
         {
@@ -31,13 +33,12 @@ namespace Server_TCP
             if (m_client != null)
                 m_client.Close();
 
-            m_server.ServerExit(this);
+            eventDispatcher.ServerExit(this);
             Debug.Log($"Client {m_user?.id} disconnected.");
         }
-        public User GetUser()
-        {
-            return m_user;
-        }
+        public User GetUser() { return m_user; }
+        public void SetUser(User user) { m_user = user; }
+
         public async Task Start()
         {
             try
@@ -159,7 +160,7 @@ namespace Server_TCP
             try
             {
                 IPacket Packet = JsonHelper<IPacket>.Deserialize(jsonPacket);
-                ProcessPacket(Packet);
+                eventDispatcher.ProcessPacket(Packet, this);
             }
             catch (Exception)
             {
@@ -178,104 +179,5 @@ namespace Server_TCP
                 throw;
             }
         }
-
-        private void ProcessPacket(IPacket packet)
-        {
-            switch (packet.type)
-            {
-                case PacketType.__FirstJoin:
-                    DefineUser();
-                    break;
-                case PacketType.__LobbyData:
-                    break;
-                case PacketType.__LobbyList:
-                    break;
-                case PacketType._StartJoin:
-                    //서버에 접속할 때
-                    if (packet.id == Guid.Empty)
-                        DefineUser();
-                    break;
-                case PacketType._EndJoin:
-                    //서버에서 퇴장
-                    Disconnect();
-                    break;
-                case PacketType._CreateLobby:
-                    //로비 생성
-                    string roomName = (string)packet.data;
-                    if (string.IsNullOrEmpty(roomName))
-                        roomName = $"{m_server.userList.ReadUser(packet.id).nickName}'s Lobby";
-
-                    SendLobbyData(m_server.CreateLobby(roomName, 4, packet.id).data);
-                    break;
-                case PacketType._JoinLobby:
-                    //packet.data로 LobbyID를 받기
-                    //이후 Lobby에 해당 유저 넣기
-                    m_server.JoinLobby((Guid)packet.data, this, m_user);
-                    break;
-                case PacketType._LeaveLobby:
-                    //packet.data로 LobbyID를 받기
-                    //이후 Lobby에 해당 유저 삭제
-                    m_server.LeaveLobby((Guid)packet.data, this, m_user);
-                    break;
-                case PacketType._Answer:
-                    ReceivedAnswer();
-                    break;
-                case PacketType._SendLobbyMessege:
-                    break;
-                case PacketType._UpdateUserData:
-                    User user = (User)packet.data;
-                    m_server.userList.UpdateUser(user);
-                    break;
-                default:
-                    break;
-            }
-        }
-
-
-        #region IResponse구현
-        //양방향
-        public void DefineUser()
-        {
-            User newUser = m_server.userList.CreateNewUser();
-            m_user = newUser;
-
-            Guid id = newUser.id;
-            IPacket packet = new(PacketType.__FirstJoin, id, Guid.Empty);
-            SendPacketAsync(packet);
-        }
-        public void SendLobbyList(List<LobbyData> lobbyList)
-        {
-            IPacket packet = new(PacketType.__FirstJoin, lobbyList, Guid.Empty);
-            SendPacketAsync(packet);
-        }
-        public void SendLobbyData(LobbyData lobbyData)
-        {
-            IPacket packet = new(PacketType.__LobbyData, lobbyData, Guid.Empty);
-            SendPacketAsync(packet);
-        }
-        //단방향 broadcasting
-        //Lobby
-        public void Booted()
-        {
-
-        }
-        public void LobbyMessege(string who, string message)
-        {
-
-        }
-        //In Game
-        public void GameStarted()
-        {
-
-        }
-        public void ReceivedAnswer()
-        {
-
-        }
-        public void LastTimer()
-        {
-
-        }
-        #endregion
     }
 }

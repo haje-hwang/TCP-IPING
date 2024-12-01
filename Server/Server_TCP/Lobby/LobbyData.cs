@@ -1,4 +1,4 @@
-﻿using Lobby;
+﻿using Server_TCP.Lobby;
 using System;
 using System.Collections.Generic;
 using System;
@@ -8,6 +8,12 @@ using System.Threading.Tasks;
 
 namespace Server_TCP.Lobby
 {
+    [Serializable]
+    public enum LobbyMode
+    {
+        PUBLIC,
+        PRIVATE
+    }
     [Serializable]
     public class LobbyData
     {

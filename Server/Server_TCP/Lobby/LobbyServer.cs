@@ -10,24 +10,27 @@ using Server_TCP.Quiz;
 
 namespace Server_TCP.Lobby
 {
-    public class LobbyServer
+    /// <summary>
+    /// 게임 전체 서버, 게임 내 모든 로비들을 관리한다고 LobbyServer라 지음
+    /// 홀펀칭 추가해서 host클라가 각 게임 로비를 p2p로 하는게 아니면
+    /// 게임 관련 통신도 담당함
+    /// </summary>
+    public class LobbyServer    
     {
         public bool isRunning ;
-        public UserList userList = new();
+        
 
         private int _PORT;
         private TcpListener listener;
-        private List<ClientHandler> clients = new();
-        private ConcurrentDictionary<Guid, GameLobby> lobbyMap = new();
-        private QuizManager quizManager = new();
-        //Events
-        // public delegate void UserJoin(User joinedUser);
-        // public delegate void UserExit(User exitedUser);
-        // public event UserJoin OnUserJoined;
-        // public event UserExit OnUserExited;
+        private List<ClientHandler> clients = new List<ClientHandler>();
+        private UserList userList = new UserList();
+        private ConcurrentDictionary<Guid, GameLobby> lobbyMap = new ConcurrentDictionary<Guid, GameLobby>();
+        private PacketEventDispatcher eventDispatcher;
+
         public LobbyServer(int PORT)
         {
             listener = new TcpListener(IPAddress.Any, PORT);
+            eventDispatcher = new PacketEventDispatcher(this);
             listener.Start();
 
             _PORT = PORT;
@@ -44,8 +47,10 @@ namespace Server_TCP.Lobby
                     TcpClient client = await listener.AcceptTcpClientAsync();
                     Debug.Log("Client connected!");
 
-                    ClientHandler handler = new ClientHandler(client, this);
-                    clients.Add(handler);
+                    ClientHandler handler = new ClientHandler(client, eventDispatcher);
+                    ServerEnter(handler);
+                    eventDispatcher.OnUserExited += ServerExit;
+
                     _ = handler.Start(); // 클라이언트 처리 시작
                 }
             }
@@ -63,30 +68,35 @@ namespace Server_TCP.Lobby
                 client.SendPacketAsync(packet);
             }
         }
-        public bool ServerEnter(ClientHandler client)
+        //eventListen
+        public void ServerEnter(ClientHandler client)
         {
-            return false;
+            clients.Add(client);
         }
-
-        public bool ServerExit(ClientHandler client)
+        public void ServerExit(ClientHandler client)
         {
-            return clients.Remove(client);
+            clients.Remove(client);
         }
         // 로비 관리 메서드...
         public GameLobby CreateLobby(string name, int maxPlayers, Guid host)
         {
             Guid lobby_uid = Guid.NewGuid();
             LobbyData data = new LobbyData(lobby_uid, name, maxPlayers, host);
-            GameLobby lobby = new GameLobby(data);
-            //lobbies.Add(lobby);
+            GameLobby lobby = new GameLobby(data, eventDispatcher);
             lobbyMap.TryAdd(lobby_uid, lobby);
+
+            lobby.OnLobbyDestroyed += DestroyLobby;
             return lobby;
         }
-        GameLobby FindLobby(Guid uid)
+        public void DestroyLobby(Guid lobbyId)
+        {
+            lobbyMap.TryRemove(lobbyId, out GameLobby? l);
+        }
+        public GameLobby FindLobby(Guid uid)
         {
             //return lobbies.FirstOrDefault(lobby => lobby.data.uid == uid);
             return lobbyMap[uid];
-        } 
+        }
         public bool JoinLobby(Guid lobbyCode, ClientHandler client, User user)
         {
             return FindLobby(lobbyCode)?.AddPlayer(client, user) ?? false;
@@ -95,18 +105,25 @@ namespace Server_TCP.Lobby
         {
             return FindLobby(lobbyCode)?.RemovePlayer(client, user) ?? false;
         }
-        //  public List<Question> GetQuestions(string category = null, string difficulty = null)
-        // {
-        //     // 카테고리와 난이도에 따른 문제 필터링
-        //     return m_questions; // 필요 시 필터 조건 추가
-        // }
-
-        public int UpdateScore(Guid clientId, bool isCorrect)
+        public List<LobbyData> GetALLLobbyList()
         {
-            if (isCorrect)
-                m_scores[clientId] = m_scores.GetValueOrDefault(clientId, 0) + 10;
+            List<LobbyData> result = new List<LobbyData>();
+            result.Capacity = lobbyMap.Count;
+            foreach (var gameLobby in lobbyMap.Values)
+            {
+                result.Add(gameLobby.data);
+            }
+            return result;
+        }
 
-            return m_scores[clientId];
+        //
+        public User NewUser()
+        {
+            return userList.CreateNewUser();
+        }
+        public void UpdateUser(User user)
+        {
+            userList.UpdateUser(user);
         }
     }
 }

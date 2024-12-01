@@ -8,7 +8,7 @@ using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 using Server_TCP;
-using Lobby;
+using Server_TCP.Lobby;
 
 public class Program
 {
