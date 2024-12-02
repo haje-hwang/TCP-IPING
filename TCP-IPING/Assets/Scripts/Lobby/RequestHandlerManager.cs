@@ -23,7 +23,8 @@ public class RequestHandlerManager : MonoBehaviour
     {
         string userNickname = PlayerPrefs.GetString("PlayerNickname", "Player");
         User user = new User(Guid.NewGuid(), userNickname);
-        TcpClient tcpClient = new TcpClient("27.113.62.74", 5000);
+        TcpClient tcpClient = new TcpClient("127.0.0.1", 5000); //클라 테스트용 
+        //TcpClient tcpClient = new TcpClient("27.113.62.74", 5000); //외부접속용
         requestHandler = new RequestHandler(user, tcpClient);
 
         Debug.Log($"Initialized with nickname: {userNickname}");
