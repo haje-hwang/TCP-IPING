@@ -154,6 +154,7 @@ public class RequestHandler : IRequest
         {
             byte[] data = Constants.Packet.encoding.GetBytes(message);
             int length = data.Length;
+            DebugMsg($"SendMessegeAsync: {length}/{message}");
 
             // 패킷 길이(4바이트)를 먼저 보냄
             byte[] lengthBytes = BitConverter.GetBytes(length);

@@ -18,7 +18,7 @@ namespace Server_TCP.Lobby
 
         public delegate void LobbyJoin(ClientHandler joinedClient);
         public delegate void LobbyExit(ClientHandler exitedClient);
-        public delegate void LobbyDestroy();
+        public delegate void LobbyDestroy(Guid lobbyId);
         public event LobbyJoin OnLobbyJoined = delegate { };
         public event LobbyExit OnLobbyExited = delegate { };
         public event LobbyDestroy OnLobbyDestroyed = delegate { };
@@ -55,7 +55,7 @@ namespace Server_TCP.Lobby
             if(user.id == data.host)// || data.players.Count == 0)  //어차피 host나가면 방 터지니까.
             {
                 //방 삭제
-                OnLobbyDestroyed?.Invoke();
+                OnLobbyDestroyed?.Invoke(data.uid);
                 CloseLobby();
             }
             return clients.Remove(player);
