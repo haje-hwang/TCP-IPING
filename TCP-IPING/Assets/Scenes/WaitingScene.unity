@@ -907,7 +907,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f9798fc2342442b4c9e9445e3f7aaf25, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nicknameText: {fileID: 799734200}
+  nicknameTexts:
+  - {fileID: 799734200}
+  - {fileID: 1219015393}
+  - {fileID: 1785924283}
+  - {fileID: 869506873}
+  foxImages:
+  - {fileID: 1573885926}
+  - {fileID: 1794246194}
+  - {fileID: 11527347}
+  - {fileID: 1605739593}
 --- !u!4 &392113207
 Transform:
   m_ObjectHideFlags: 0
@@ -1459,7 +1468,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &799734199
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2926,7 +2935,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.6, g: 0.6, b: 0.6, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
