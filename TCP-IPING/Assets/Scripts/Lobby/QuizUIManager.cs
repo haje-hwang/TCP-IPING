@@ -1,26 +1,30 @@
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using System.Collections;
 
 public class QuizUIManager : MonoBehaviour
 {
-    public TextMeshProUGUI questionText;  // 질문을 표시할 TextMeshProUGUI
-    public Button[] optionButtons;  // 선택지 버튼 배열
+    public TextMeshProUGUI questionText; // 질문을 표시할 TextMeshProUGUI
+    public Button[] optionButtons; // 선택지 버튼들
 
-    private ConnectQuiz connectQuiz;  // ConnectQuiz 참조
-    private int currentQuestionIndex = 0;  // 현재 질문의 인덱스
+    private ConnectQuiz connectQuiz; // ConnectQuiz 참조
+    private int currentQuestionIndex = 0;
+
+    private RoomTimer roomTimer;  // RoomTimer 참조
 
     void Start()
     {
         connectQuiz = FindObjectOfType<ConnectQuiz>();  // ConnectQuiz 찾기
+        roomTimer = FindObjectOfType<RoomTimer>(); // RoomTimer 찾기
 
-        if (connectQuiz != null && connectQuiz.quiz.questions.Count > 0)
+        if (connectQuiz != null)
         {
             DisplayQuestion(connectQuiz.quiz.questions[currentQuestionIndex]);  // 첫 번째 질문 표시
         }
         else
         {
-            Debug.LogError("ConnectQuiz를 찾을 수 없거나 질문이 없습니다.");
+            Debug.LogError("ConnectQuiz를 찾을 수 없습니다.");
         }
     }
 
@@ -32,20 +36,20 @@ public class QuizUIManager : MonoBehaviour
         // 각 선택지를 버튼에 표시
         for (int i = 0; i < optionButtons.Length; i++)
         {
-            if (i < question.options.Count)  // 선택지 개수만큼 버튼 설정
+            if (i < question.options.Count)
             {
                 int optionIndex = i;  // 선택지 버튼에 해당하는 인덱스
 
                 // 버튼의 텍스트 변경
-                optionButtons[i].GetComponentInChildren<TextMeshProUGUI>().text = question.options[i];
+                optionButtons[i].GetComponentInChildren<TextMeshProUGUI>().text = question.options[optionIndex];
 
                 // 버튼 클릭 리스너 설정 (정답 확인)
-                optionButtons[i].onClick.RemoveAllListeners();  // 기존 리스너 제거
+                optionButtons[i].onClick.RemoveAllListeners();
                 optionButtons[i].onClick.AddListener(() => OnOptionSelected(optionIndex, question.answer));
             }
             else
             {
-                // 선택지가 부족하면 버튼 숨기기
+                // 옵션이 부족하면 버튼 숨기기
                 optionButtons[i].gameObject.SetActive(false);
             }
         }
@@ -54,6 +58,7 @@ public class QuizUIManager : MonoBehaviour
     // 사용자가 선택한 답변 확인
     void OnOptionSelected(int optionIndex, int correctAnswerIndex)
     {
+        // 정답 확인
         if (optionIndex == correctAnswerIndex)
         {
             Debug.Log("정답!");
@@ -63,18 +68,21 @@ public class QuizUIManager : MonoBehaviour
             Debug.Log("오답!");
         }
 
-        // 다음 질문으로 이동
-        currentQuestionIndex++;
+     
+    }
 
-        if (currentQuestionIndex < connectQuiz.quiz.questions.Count)
+    // 다음 문제로 넘어가는 함수
+    public void ShowNextQuestion()
+    {
+        if (currentQuestionIndex < connectQuiz.quiz.questions.Count - 1)
         {
-            // 다음 질문을 표시
-            DisplayQuestion(connectQuiz.quiz.questions[currentQuestionIndex]);
+            currentQuestionIndex++;
+            DisplayQuestion(connectQuiz.quiz.questions[currentQuestionIndex]); // 다음 질문 표시
         }
         else
         {
-            // 모든 질문이 끝난 경우
-            Debug.Log("퀴즈 완료!");
+            Debug.Log("모든 문제가 끝났습니다.");
+            // 랭킹 화면으로 이동하는 등 필요한 처리를 여기서 할 수 있습니다.
         }
     }
 }

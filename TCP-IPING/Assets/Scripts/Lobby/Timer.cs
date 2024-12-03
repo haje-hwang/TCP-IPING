@@ -16,12 +16,16 @@ public class RoomTimer : MonoBehaviour
     public GameObject[] answerButtons; // 답변 버튼들
     public GameObject rankingPanel; //랭킹 패널
 
+    private QuizUIManager quizUIManager;  // QuizUIManager 참조
+
     void Start()
     {
         // 타이머 초기화
         timer = timerDuration;
         UpdateTimerText();
         StartTimer(); // 타이머 시작
+
+        quizUIManager = FindObjectOfType<QuizUIManager>(); // QuizUIManager 찾기
 
         rankingPanel.SetActive(false);
     }
@@ -68,15 +72,14 @@ public class RoomTimer : MonoBehaviour
     {
         Debug.Log("Timer ended!");
 
-        // 질문 패널과 버튼들을 숨김
-        questionPanel.SetActive(false);
-        foreach (var button in answerButtons)
-        {
-            button.SetActive(false);
-        }
-
-        // 1초 대기
+        // 1초 대기 후, 다음 문제로 넘어가기
         yield return new WaitForSeconds(1f);
+
+        // 타이머 종료 후 다음 문제로 넘어가도록 호출
+        if (quizUIManager != null)
+        {
+            quizUIManager.ShowNextQuestion();  // 다음 문제로 넘어감
+        }
 
         // 질문 패널과 버튼들을 다시 활성화
         questionPanel.SetActive(true);
@@ -89,9 +92,11 @@ public class RoomTimer : MonoBehaviour
         ResetTimer();
 
         timerCount++;
-        if (timerCount >= 2)
+        if (timerCount >= 10)
         {
             rankingPanel.SetActive(true);  // 랭킹 패널을 보이게 함
         }
     }
+
+
 }
