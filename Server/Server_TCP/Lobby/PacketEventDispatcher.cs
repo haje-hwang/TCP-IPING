@@ -22,7 +22,7 @@ namespace Server_TCP.Lobby
         private PacketEventDispatcher() { }
         public PacketEventDispatcher(LobbyServer server)
         {
-            server = _server;
+            _server = server;
         }
 
         public void ProcessPacket(IPacket packet, ClientHandler client)

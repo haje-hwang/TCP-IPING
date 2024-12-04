@@ -2,6 +2,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 
 public class ConnectQuiz : MonoBehaviour
@@ -147,18 +148,19 @@ public class ConnectQuiz : MonoBehaviour
         }
 
         UnityEngine.Debug.Log($"총 {quiz.questions.Count}개의 질문을 가져왔습니다.");
-
+        StringBuilder sb = new StringBuilder();
         // 확인용 질문 출력
         foreach (var q in quiz.questions)
         {
-            UnityEngine.Debug.Log($"ID: {q.id}");
-            UnityEngine.Debug.Log($"Question: {q.question}");
-            UnityEngine.Debug.Log($"Options: {string.Join(", ", q.options)}");
-            UnityEngine.Debug.Log($"Answer Index: {q.answer}");
-            UnityEngine.Debug.Log($"Category: {q.category}");
-            UnityEngine.Debug.Log($"Difficulty: {q.difficulty}");
-            UnityEngine.Debug.Log("---------------");
+            sb.AppendLine($"ID: {q.id}");
+            sb.AppendLine($"Question: {q.question}");
+            sb.AppendLine($"Options: {string.Join(", ", q.options)}");
+            sb.AppendLine($"Answer Index: {q.answer}");
+            sb.AppendLine($"Category: {q.category}");
+            sb.AppendLine($"Difficulty: {q.difficulty}");
+            sb.AppendLine("---------------");   
         }
+        UnityEngine.Debug.Log(sb);
     }
     public List<Question> FetchFilteredQuestions(string category, string difficulty, int limit = 10)
     {

@@ -2,6 +2,7 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Text;
 using UnityEngine;
 
 public class ConnectUser : MonoBehaviour
@@ -38,11 +39,15 @@ public class ConnectUser : MonoBehaviour
 
         // 모든 유저 정보 가져오기
         var users = _Collection.Find(Builders<BsonDocument>.Filter.Empty).ToList();
+        StringBuilder sb = new StringBuilder();
         foreach (var user in users)
         {
             //일단은 디버그 로그로 출력 
-            UnityEngine.Debug.Log($"아이디: {user["id"]}");
-            UnityEngine.Debug.Log($"이름: {user["nickName"]}");
+            sb.Append($"아이디: {user["id"]} /");
+            sb.AppendLine($"이름: {user["nickName"]}");
+            // UnityEngine.Debug.Log($"아이디: {user["id"]}");
+            // UnityEngine.Debug.Log($"이름: {user["nickName"]}");
         }
+        UnityEngine.Debug.Log(sb);
     }
 }
