@@ -49,6 +49,12 @@ public class _testClient : MonoBehaviour
         TcpClient tcpClient = new TcpClient(IP, PORT);
         handler = new RequestHandler(null, tcpClient);
         isTestRunning = true;
+        StartCoroutine(AutoRefreshUserdata());
+    }
+    IEnumerator AutoRefreshUserdata()
+    {
+        yield return new WaitUntil(()=>handler.GetUser() != null);
+        RefreshUserdata();
     }
     public void RefreshUserdata()
     {

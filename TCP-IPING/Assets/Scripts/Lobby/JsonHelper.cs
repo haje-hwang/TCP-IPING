@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 public class JsonHelper<T>
 {
     //감싸진 객체의 타입도 표시함
-    static JsonSerializerSettings settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All };
+    static JsonSerializerSettings settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.None };
 
     // 패킷을 JSON 문자열로 직렬화
     public static string Serialize(T packet)

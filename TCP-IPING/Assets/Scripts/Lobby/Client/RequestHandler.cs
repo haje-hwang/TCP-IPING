@@ -8,10 +8,12 @@ using System.Collections.Concurrent;
 public class RequestHandler : IRequest
 {
     public bool isRunning;
-    User m_user {get; set;}
+    public bool isSending;
+    User m_user;
     TcpClient m_client;
     NetworkStream m_stream;
-    private static ConcurrentQueue<IPacket> packetQueue = new ConcurrentQueue<IPacket>();
+    private static ConcurrentQueue<IPacket> rcvPacketQueue = new ConcurrentQueue<IPacket>();
+    private static ConcurrentQueue<string> sendMessegeQueue = new ConcurrentQueue<string>();
     private static SemaphoreSlim packetSemaphore = new SemaphoreSlim(0); // 초기화 시 0, 즉 대기 상태
 
     // private 생성자로 외부에서 직접 호출하지 못하도록 제한
@@ -60,7 +62,7 @@ public class RequestHandler : IRequest
     {
         DebugMsg("클라이언트 시작.");
         isRunning = true;
-
+        isSending = false;
         try
         {
             m_stream = m_client.GetStream();
@@ -73,6 +75,10 @@ public class RequestHandler : IRequest
                 Guid id = await FirstJoin();
                 m_user = new User(id, "Annonymous");
                 DebugMsg($"User Confirmed : {m_user?.id}, {m_user.nickName}");
+            }
+            else
+            {
+                StartJoin();
             }
         }
         catch (Exception ex)
@@ -137,7 +143,7 @@ public class RequestHandler : IRequest
         }
         Disconnect();
     }
-    public async Task SendMessegeAsync(string message)
+    private async Task SendMessegeAsync(string message)
     {
         if (m_client == null || !m_client.Connected)
         {
@@ -188,7 +194,7 @@ public class RequestHandler : IRequest
             {
                 if(IPacket.isBidirectional(packet.type))
                 {
-                    packetQueue.Enqueue(packet);  // 큐에 패킷 저장
+                    rcvPacketQueue.Enqueue(packet);  // 큐에 패킷 저장
                     packetSemaphore.Release();  // 패킷 도착 시 Semaphore를 Release
                 }
                 ProcessBroadcastPacket(packet);
@@ -205,12 +211,27 @@ public class RequestHandler : IRequest
         try
         {
             string jsonPacket = JsonHelper<IPacket>.Serialize(Packet);
-            await SendMessegeAsync(jsonPacket);
+            sendMessegeQueue.Enqueue(jsonPacket);
+            await SendQueueAsync();
         }
         catch (System.Exception)
         {
             throw;
         }
+    }
+    private async Task SendQueueAsync()
+    {
+        if(isSending)
+            return;
+
+        isSending = true;
+        string messege;
+        while(sendMessegeQueue.Count > 0)
+        {
+            sendMessegeQueue.TryDequeue(out messege);
+            await SendMessegeAsync(messege);
+        }
+        isSending = false;
     }
 
     /// <summary>
@@ -233,14 +254,14 @@ public class RequestHandler : IRequest
             while (!cts.IsCancellationRequested)
             {
                 // 큐가 비어 있으면 기다림
-                if (packetQueue.IsEmpty)
+                if (rcvPacketQueue.IsEmpty)
                 {
                     await packetSemaphore.WaitAsync(cts.Token); //패킷을 받을 때까지 
                     continue;
                 }
 
                 // 큐에서 패킷을 꺼냄
-                if (!packetQueue.TryDequeue(out responsePacket) || responsePacket == null)
+                if (!rcvPacketQueue.TryDequeue(out responsePacket) || responsePacket == null)
                 {
                     continue;
                 }
@@ -325,7 +346,7 @@ public class RequestHandler : IRequest
     }
     public async void StartJoin()
     {
-        IPacket packet = new IPacket(PacketType._StartJoin, null, m_user.id);
+        IPacket packet = new IPacket(PacketType._StartJoin, m_user, m_user.id);
         await SendPacketAsync(packet);
     }
     public async void EndJoin()
@@ -335,6 +356,7 @@ public class RequestHandler : IRequest
     }
     public async void UpdateUser(User user)
     {
+        m_user = user;
         IPacket packet = new IPacket(PacketType._UpdateUserData, user, m_user.id);
         await SendPacketAsync(packet);
     }

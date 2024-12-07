@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -27,57 +28,71 @@ namespace Server_TCP.Lobby
 
         public void ProcessPacket(IPacket packet, ClientHandler client)
         {
-            switch (packet.type)
+            try
             {
-                case PacketType.__FirstJoin:
-                    DefineUser(client);
-                    break;
-                case PacketType.__LobbyData:
-                    SendLobbyData(client);
-                    break;
-                case PacketType.__LobbyList:
-                    SendLobbyList(client);
-                    break;
-                case PacketType._StartJoin:
-                    //서버에 접속할 때
-                    if (packet.id == Guid.Empty)
+                switch (packet.type)
+                {
+                    case PacketType.__FirstJoin:
                         DefineUser(client);
-                    //ClientHandler가 생성될 때 대부분 초기화 하기 때문에 ID체크만
-                    break;
-                case PacketType._EndJoin:
-                    //서버에서 퇴장
-                    OnUserExited?.Invoke(client);
-                    client.Disconnect();
-                    break;
-                case PacketType._CreateLobby:
-                    //로비 생성
-                    string roomName = (string)packet.data;
-                    if (string.IsNullOrEmpty(roomName))
-                        roomName = $"{client.GetUser().nickName}'s Lobby";
+                        break;
+                    case PacketType.__LobbyData:
+                        SendLobbyData(client);
+                        break;
+                    case PacketType.__LobbyList:
+                        SendLobbyList(client);
+                        break;
+                    case PacketType._StartJoin:
+                        //서버에 접속할 때
+                        if (packet.id == Guid.Empty)
+                            DefineUser(client);
+                        else
+                        {
+                            JObject jObject = (Newtonsoft.Json.Linq.JObject)packet.data;
+                            User? _user = jObject.ToObject<User>();
+                            client.SetUser(_user);
+                        }//ClientHandler가 생성될 때 대부분 초기화 하기 때문에 ID체크만
+                        break;
+                    case PacketType._EndJoin:
+                        //서버에서 퇴장
+                        OnUserExited?.Invoke(client);
+                        client.Disconnect();
+                        break;
+                    case PacketType._CreateLobby:
+                        //로비 생성
+                        string roomName = (string)packet.data;
+                        Debug.Log($"In _CreateLobby Packet, Received Lobby name is :{roomName}");
+                        if (string.IsNullOrEmpty(roomName))
+                            roomName = $"{client.GetUser().nickName}'s Lobby";
 
-                    SendLobbyData(client);
-                    break;
-                case PacketType._JoinLobby:
-                    //packet.data로 LobbyID를 받기
-                    //이후 Lobby에 해당 유저 넣기
-                    _server.JoinLobby((Guid)packet.data, client, client.GetUser());
-                    break;
-                case PacketType._LeaveLobby:
-                    //packet.data로 LobbyID를 받기
-                    //이후 Lobby에 해당 유저 삭제
-                    _server.LeaveLobby((Guid)packet.data, client, client.GetUser());
-                    break;
-                case PacketType._Answer:
-                    ReceivedAnswer();
-                    break;
-                case PacketType._SendLobbyMessege:
-                    break;
-                case PacketType._UpdateUserData:
-                    User user = (User)packet.data;
-                    UpdateUserData(user);
-                    break;
-                default:
-                    break;
+                        CreateLobby(client);
+                        break;
+                    case PacketType._JoinLobby:
+                        //packet.data로 LobbyID를 받기
+                        //이후 Lobby에 해당 유저 넣기
+                        _server.JoinLobby((Guid)packet.data, client, client.GetUser());
+                        break;
+                    case PacketType._LeaveLobby:
+                        //packet.data로 LobbyID를 받기
+                        //이후 Lobby에 해당 유저 삭제
+                        _server.LeaveLobby((Guid)packet.data, client, client.GetUser());
+                        break;
+                    case PacketType._Answer:
+                        ReceivedAnswer();
+                        break;
+                    case PacketType._SendLobbyMessege:
+                        break;
+                    case PacketType._UpdateUserData:
+                        User user = (User)packet.data;
+                        UpdateUserData(user);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            catch(Exception e)
+            {
+                Debug.LogWarning($"While Processing Packet ({client.GetUser()?.nickName}, {client.GetUser()?.id}): {e.Message}");
+                throw;
             }
         }
         public void ServerExit(ClientHandler client)

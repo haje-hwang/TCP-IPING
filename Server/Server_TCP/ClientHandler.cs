@@ -1,4 +1,5 @@
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Text;
@@ -17,6 +18,7 @@ namespace Server_TCP
         User? m_user;
         public Guid joindLobbyId;
 #nullable disable
+        private readonly ArrayPool<byte> _bufferPool = ArrayPool<byte>.Shared;
 
         public ClientHandler(TcpClient client, PacketEventDispatcher eventDispatcher)
         {
@@ -80,7 +82,7 @@ namespace Server_TCP
                     }
 
                     // 3. 패킷 데이터 읽기
-                    buffer = new byte[packetLength];
+                    buffer = _bufferPool.Rent(packetLength + 1);
                     int totalBytesRead = 0;
 
                     while (totalBytesRead < packetLength)
@@ -99,13 +101,14 @@ namespace Server_TCP
 
                     // 4. 데이터 처리
                     string message = Encoding.UTF8.GetString(buffer);
-                    Debug.Log($"Received from {m_user?.nickName}, {m_user?.id}: {packetLength}, {message}");
+                    Debug.Log($"Received from ({m_user?.nickName}, {m_user?.id}): {packetLength}, {message}");
                     ReceivedPacket(message);
                 }
             }
             catch (Exception ex)
             {
                 Debug.LogWarning($"Client {m_user?.id} error: {ex.Message}");
+                throw;
             }
             finally
             {
@@ -130,6 +133,8 @@ namespace Server_TCP
             {
                 byte[] data = System.Text.Encoding.UTF8.GetBytes(message);
                 int length = data.Length;
+
+                //Debug.Log($"Send to {m_user?.nickName}, {m_user?.id}: {length}, {message}");
 
                 // 패킷 길이(4바이트)를 먼저 보냄
                 byte[] lengthBytes = BitConverter.GetBytes(length);
