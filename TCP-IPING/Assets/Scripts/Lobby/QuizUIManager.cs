@@ -23,6 +23,7 @@ public class QuizUIManager : MonoBehaviour
     {
         connectQuiz = FindObjectOfType<ConnectQuiz>(); // ConnectQuiz 찾기
 
+
         if (connectQuiz != null)
         {
             DisplayQuestion(connectQuiz.quiz.questions[currentQuestionIndex]); // 첫 번째 질문 표시
@@ -33,6 +34,7 @@ public class QuizUIManager : MonoBehaviour
         }
 
         UpdateScoreUI(); // 시작 시 점수 UI 업데이트
+        int playerScore = PlayerPrefs.GetInt("PlayerScore", 0);
     }
 
     // 질문과 선택지를 TextMeshPro와 버튼에 표시하는 함수
@@ -130,7 +132,13 @@ public class QuizUIManager : MonoBehaviour
         else
         {
             Debug.Log("모든 문제가 끝났습니다.");
-            
+            SaveScore();
         }
+    }
+
+    public void SaveScore()
+    {
+        PlayerPrefs.SetInt("PlayerScore", score);  // 점수를 PlayerPrefs에 저장
+        Debug.Log("점수 저장됨: " + score);
     }
 }

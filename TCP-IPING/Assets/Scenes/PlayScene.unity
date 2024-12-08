@@ -310,10 +310,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 1st        name                  score
+  m_text: 
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 7f8ce9c9a126b3445b45b2c7f0963728, type: 2}
-  m_sharedMaterial: {fileID: -90892917578681765, guid: 7f8ce9c9a126b3445b45b2c7f0963728, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: c715647ba02e7dc4e9e6692a2e0750b7, type: 2}
+  m_sharedMaterial: {fileID: 4904929512430295911, guid: c715647ba02e7dc4e9e6692a2e0750b7, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -654,10 +654,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 2nd        name                  score
+  m_text: 
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 7f8ce9c9a126b3445b45b2c7f0963728, type: 2}
-  m_sharedMaterial: {fileID: -90892917578681765, guid: 7f8ce9c9a126b3445b45b2c7f0963728, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: c715647ba02e7dc4e9e6692a2e0750b7, type: 2}
+  m_sharedMaterial: {fileID: 4904929512430295911, guid: c715647ba02e7dc4e9e6692a2e0750b7, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1291,7 +1291,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &749472771
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1487,6 +1487,7 @@ GameObject:
   m_Component:
   - component: {fileID: 834782234}
   - component: {fileID: 834782233}
+  - component: {fileID: 834782235}
   m_Layer: 0
   m_Name: GameObject
   m_TagString: Untagged
@@ -1531,6 +1532,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &834782235
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 834782232}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dac7ce78a3c3464288f908c25f5721c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rankingText: {fileID: 66061610}
 --- !u!1 &893669121
 GameObject:
   m_ObjectHideFlags: 0
@@ -2229,10 +2243,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 4th        name                  score
+  m_text: 
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 7f8ce9c9a126b3445b45b2c7f0963728, type: 2}
-  m_sharedMaterial: {fileID: -90892917578681765, guid: 7f8ce9c9a126b3445b45b2c7f0963728, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: c715647ba02e7dc4e9e6692a2e0750b7, type: 2}
+  m_sharedMaterial: {fileID: 4904929512430295911, guid: c715647ba02e7dc4e9e6692a2e0750b7, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -2363,10 +2377,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 3rd        name                  score
+  m_text: 
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 7f8ce9c9a126b3445b45b2c7f0963728, type: 2}
-  m_sharedMaterial: {fileID: -90892917578681765, guid: 7f8ce9c9a126b3445b45b2c7f0963728, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: c715647ba02e7dc4e9e6692a2e0750b7, type: 2}
+  m_sharedMaterial: {fileID: 4904929512430295911, guid: c715647ba02e7dc4e9e6692a2e0750b7, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -2785,7 +2799,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_fontStyle: 1
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -3389,6 +3403,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Answer4
       objectReference: {fileID: 0}
+    - target: {fileID: 8082946072609685256, guid: 6d9e3960fc4103846b0c30ccfe801801, type: 3}
+      propertyPath: m_fontStyle
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -3582,6 +3600,10 @@ PrefabInstance:
     - target: {fileID: 1837125903908173737, guid: 8fc32f896dcd7dd4bbaa28ca4372c729, type: 3}
       propertyPath: m_Name
       value: Answer3
+      objectReference: {fileID: 0}
+    - target: {fileID: 6787411669221553572, guid: 8fc32f896dcd7dd4bbaa28ca4372c729, type: 3}
+      propertyPath: m_fontStyle
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
