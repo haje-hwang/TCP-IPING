@@ -1,51 +1,66 @@
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
-using System.Collections;
 
 public class QuizUIManager : MonoBehaviour
 {
     public TextMeshProUGUI questionText; // 질문을 표시할 TextMeshProUGUI
     public Button[] optionButtons; // 선택지 버튼들
 
+    public Sprite defaultSprite; // 기본 스프라이트
+    public Sprite correctSprite; // 정답 스프라이트
+    public Sprite incorrectSprite; // 오답 스프라이트
+
+    public TextMeshProUGUI scoreText; // 점수를 표시할 TextMeshProUGUI
+
     private ConnectQuiz connectQuiz; // ConnectQuiz 참조
     private int currentQuestionIndex = 0;
 
-    private RoomTimer roomTimer;  // RoomTimer 참조
+    private bool isAnswered = false; // 현재 질문에 답변했는지 여부를 저장
+    private int score = 0; // 현재 점수
 
     void Start()
     {
-        connectQuiz = FindObjectOfType<ConnectQuiz>();  // ConnectQuiz 찾기
-        roomTimer = FindObjectOfType<RoomTimer>(); // RoomTimer 찾기
+        connectQuiz = FindObjectOfType<ConnectQuiz>(); // ConnectQuiz 찾기
 
         if (connectQuiz != null)
         {
-            DisplayQuestion(connectQuiz.quiz.questions[currentQuestionIndex]);  // 첫 번째 질문 표시
+            DisplayQuestion(connectQuiz.quiz.questions[currentQuestionIndex]); // 첫 번째 질문 표시
         }
         else
         {
             Debug.LogError("ConnectQuiz를 찾을 수 없습니다.");
         }
+
+        UpdateScoreUI(); // 시작 시 점수 UI 업데이트
     }
 
     // 질문과 선택지를 TextMeshPro와 버튼에 표시하는 함수
     void DisplayQuestion(Question question)
     {
-        questionText.text = question.question;  // 질문을 TextMeshPro에 표시
+        isAnswered = false; // 새로운 질문 표시 시, 다시 답변 가능하도록 설정
+
+        // 질문 표시
+        questionText.text = question.question;
 
         // 각 선택지를 버튼에 표시
         for (int i = 0; i < optionButtons.Length; i++)
         {
             if (i < question.options.Count)
             {
-                int optionIndex = i;  // 선택지 버튼에 해당하는 인덱스
+                int optionIndex = i; // 선택지 버튼에 해당하는 인덱스
 
                 // 버튼의 텍스트 변경
                 optionButtons[i].GetComponentInChildren<TextMeshProUGUI>().text = question.options[optionIndex];
 
                 // 버튼 클릭 리스너 설정 (정답 확인)
                 optionButtons[i].onClick.RemoveAllListeners();
-                optionButtons[i].onClick.AddListener(() => OnOptionSelected(optionIndex, question.answer));
+                optionButtons[i].onClick.AddListener(() => OnOptionSelected(optionButtons[optionIndex], optionIndex, question.answer));
+
+                // 기본 스프라이트와 상호작용 가능 상태로 초기화
+                optionButtons[i].GetComponent<Image>().sprite = defaultSprite;
+                optionButtons[i].interactable = true;
+                optionButtons[i].gameObject.SetActive(true);
             }
             else
             {
@@ -56,19 +71,50 @@ public class QuizUIManager : MonoBehaviour
     }
 
     // 사용자가 선택한 답변 확인
-    void OnOptionSelected(int optionIndex, int correctAnswerIndex)
+    void OnOptionSelected(Button button, int optionIndex, int correctAnswerIndex)
     {
-        // 정답 확인
+        if (isAnswered) return; // 이미 답변한 경우 아무 작업도 하지 않음
+
+        isAnswered = true; // 답변 상태를 true로 변경
+
+        // 정답 확인 및 스프라이트 변경
         if (optionIndex == correctAnswerIndex)
         {
             Debug.Log("정답!");
+            button.GetComponent<Image>().sprite = correctSprite; // 정답 스프라이트로 변경
+            score++; // 점수 증가
+            UpdateScoreUI(); // 점수 UI 업데이트
         }
         else
         {
             Debug.Log("오답!");
+            button.GetComponent<Image>().sprite = incorrectSprite; // 오답 스프라이트로 변경
         }
 
-     
+        // 모든 버튼을 비활성화
+        DisableAllButtons();
+    }
+
+    // 점수 UI 업데이트 함수
+    void UpdateScoreUI()
+    {
+        if (scoreText != null)
+        {
+            scoreText.text = $"score: {score}";
+        }
+        else
+        {
+            Debug.LogWarning("Score Text UI가 설정되지 않았습니다.");
+        }
+    }
+
+    // 모든 버튼을 비활성화
+    void DisableAllButtons()
+    {
+        foreach (var button in optionButtons)
+        {
+            button.interactable = false;
+        }
     }
 
     // 다음 문제로 넘어가는 함수
@@ -77,12 +123,14 @@ public class QuizUIManager : MonoBehaviour
         if (currentQuestionIndex < connectQuiz.quiz.questions.Count - 1)
         {
             currentQuestionIndex++;
-            DisplayQuestion(connectQuiz.quiz.questions[currentQuestionIndex]); // 다음 질문 표시
+
+            // 새로운 질문 표시
+            DisplayQuestion(connectQuiz.quiz.questions[currentQuestionIndex]);
         }
         else
         {
             Debug.Log("모든 문제가 끝났습니다.");
-            // 랭킹 화면으로 이동하는 등 필요한 처리를 여기서 할 수 있습니다.
+            
         }
     }
 }
