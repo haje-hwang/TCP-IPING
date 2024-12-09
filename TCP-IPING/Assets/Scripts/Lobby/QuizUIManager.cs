@@ -58,7 +58,7 @@ public class QuizUIManager : MonoBehaviour
 
                 // 버튼 클릭 리스너 설정 (정답 확인)
                 optionButtons[i].onClick.RemoveAllListeners();
-                optionButtons[i].onClick.AddListener(() => OnOptionSelected(optionButtons[optionIndex], optionIndex, question.answer));
+                optionButtons[i].onClick.AddListener(() => OnOptionSelected(optionButtons[optionIndex], optionIndex, question.answer-1));
 
                 // 기본 스프라이트와 상호작용 가능 상태로 초기화
                 optionButtons[i].GetComponent<Image>().sprite = defaultSprite;
