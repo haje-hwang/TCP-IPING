@@ -793,7 +793,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 341517867}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 834782235}
+        m_TargetAssemblyTypeName: RankingManager, Assembly-CSharp
+        m_MethodName: OnHomeButton
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &341517867
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1544,7 +1556,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0dac7ce78a3c3464288f908c25f5721c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rankingText: {fileID: 66061610}
+  rankingText1: {fileID: 66061610}
+  rankingText2: {fileID: 337123570}
+  rankingText3: {fileID: 1505695618}
+  rankingText4: {fileID: 1374932322}
 --- !u!1 &893669121
 GameObject:
   m_ObjectHideFlags: 0

@@ -105,4 +105,58 @@ public void UpdateUserScore(string nickName, int score)
     }
 }
 
+    public List<(string nickName, int score)> GetTopRankings(string collectionName, int limit)
+    {
+        if (_Collection == null)
+        {
+            Debug.LogError("컬렉션이 설정되지 않았습니다.");
+            return new List<(string, int)>();
+        }
+
+        var rankings = new List<(string nickName, int score)>();
+
+        try
+        {
+            // MongoDB에서 점수 기준으로 내림차순 정렬 후 상위 n개 가져오기
+            var filter = Builders<BsonDocument>.Filter.Empty;
+            var sort = Builders<BsonDocument>.Sort.Descending("score");
+
+            var documents = _Collection.Find(filter).Sort(sort).Limit(limit).ToList();
+
+            foreach (var doc in documents)
+            {
+                string nickName = doc.Contains("nickName") ? doc["nickName"].AsString : "Unknown";
+                int score = doc.Contains("score") ? doc["score"].AsInt32 : 0;
+
+                rankings.Add((nickName, score));
+            }
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"랭킹 정보를 가져오는 중 오류 발생: {ex.Message}");
+        }
+
+        return rankings;
+    }
+    public void DeleteAllUsers()
+    {
+        if (_Collection == null)
+        {
+            Debug.LogError("컬렉션이 설정되지 않았습니다.");
+            return;
+        }
+
+        try
+        {
+            var result = _Collection.DeleteMany(Builders<BsonDocument>.Filter.Empty);
+
+            Debug.Log($"컬렉션 '{roomName}'에서 모든 유저 데이터가 삭제되었습니다. 삭제된 문서 수: {result.DeletedCount}");
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"모든 유저 데이터를 삭제하는 중 오류 발생: {ex.Message}");
+        }
+    }
+
+
 }
