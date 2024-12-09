@@ -16,9 +16,7 @@ public class UserList : ISingleton<UserList>
     {
         // ConcurrentDictionary 초기화
         userMap = new ConcurrentDictionary<Guid, User>();
-        ConnectToDatabase();
-        // MongoDB에서 모든 유저 정보 JSON 형식으로 로드
-        
+        ConnectToDatabase();        
     }
     public UserList()
     {

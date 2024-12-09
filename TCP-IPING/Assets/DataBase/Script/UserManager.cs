@@ -63,8 +63,6 @@ public class UserManager : MonoBehaviour
         }
         userList.DeleteAllUsers();
 
-        // 결과 메시지 표시
-        //feedbackText.text = $"모든 유저정보가 제거 되었습니다.";
         UnityEngine.Debug.Log($"모든 유저정보가 제거 되었습니다.");
     }
 }

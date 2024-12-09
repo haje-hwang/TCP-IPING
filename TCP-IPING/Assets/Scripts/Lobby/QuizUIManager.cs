@@ -14,6 +14,7 @@ public class QuizUIManager : MonoBehaviour
     public TextMeshProUGUI scoreText; // 점수를 표시할 TextMeshProUGUI
 
     private ConnectQuiz connectQuiz; // ConnectQuiz 참조
+    private ConnectUser connectUser;
     private int currentQuestionIndex = 0;
 
     private bool isAnswered = false; // 현재 질문에 답변했는지 여부를 저장
@@ -22,7 +23,7 @@ public class QuizUIManager : MonoBehaviour
     void Start()
     {
         connectQuiz = FindObjectOfType<ConnectQuiz>(); // ConnectQuiz 찾기
-
+        connectUser = FindObjectOfType<ConnectUser>();
 
         if (connectQuiz != null)
         {
@@ -135,10 +136,22 @@ public class QuizUIManager : MonoBehaviour
             SaveScore();
         }
     }
-
     public void SaveScore()
     {
-        PlayerPrefs.SetInt("PlayerScore", score);  // 점수를 PlayerPrefs에 저장
-        Debug.Log("점수 저장됨: " + score);
+        if (connectUser != null)
+        {
+            string nickName = PlayerPrefs.GetString("PlayerNickname", "Guest");
+
+            connectUser.UpdateUserScore(nickName, score); // 사용자 점수 업데이트
+            Debug.Log($"DB에 점수가 저장되었습니다: 사용자 {nickName}, 점수 {score}");
+        }
+        else
+        {
+            Debug.LogError("ConnectUser가 설정되지 않았습니다. 점수를 저장할 수 없습니다.");
+        }
+
+        PlayerPrefs.SetInt("PlayerScore", score); // 로컬에도 점수를 저장
+        Debug.Log("로컬 점수 저장됨: " + score);
     }
+
 }
