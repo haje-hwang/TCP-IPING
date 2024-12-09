@@ -36,6 +36,18 @@ namespace Server_TCP.Lobby
             _PORT = PORT;
             isRunning = true;
         }
+        ~LobbyServer()
+        {
+            foreach (var gameLobby in lobbyMap.Values)
+            {
+                gameLobby.CloseLobby();
+            }
+            foreach (var client in clients)
+            {
+                client.Disconnect();
+            }
+            listener.Stop();
+        }
         public async Task Start()
         {
             try

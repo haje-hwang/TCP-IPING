@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Lobby;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -11,15 +12,12 @@ public class _test_241117 : MonoBehaviour
     // [SerializeField] Button sendButton_CreateRoom;
     [SerializeField] TMP_InputField inputField_JoinRoom;
     // [SerializeField] Button sendButton_JoinRoom;
-    [SerializeField] TcpClientUnity minwoo_client;
     [SerializeField] _testClient client;
-    // public void test_SendMessege()
-    // {
-    //     Debug.Log(inputField.text);
-    //     minwoo_client.SendMessageToServer(inputField.text);
-    //     // await client.GetHandler().SendMessegeAsync(inputField.text);
-    //     inputField.text = "";
-    // }
+    [SerializeField] DisplayLobbyData displayLobbyData;
+    private void Awake() 
+    {
+        client.GetHandler().OnLobbyUpdate += LobbyUpdate;
+    }
 
     public void test_CreateRoom()
     {
@@ -33,6 +31,12 @@ public class _test_241117 : MonoBehaviour
         {
             inputField_CreateRoom.text = "Try Again";
         }
+    }
+
+    private void LobbyUpdate(object sender, LobbyData data)
+    {
+        Debug.Log($"LobbyData: {data}");
+        displayLobbyData.DisplayData(data);
     }
     public void test_JoinRoom()
     {
