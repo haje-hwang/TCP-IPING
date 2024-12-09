@@ -69,7 +69,8 @@ namespace Server_TCP.Lobby
                     case PacketType._JoinLobby:
                         //packet.data로 LobbyID를 받기
                         //이후 Lobby에 해당 유저 넣기
-                        _server.JoinLobby((Guid)packet.data, client, client.GetUser());
+                        Guid roomID = Guid.Parse((string)packet.data);
+                        _server.JoinLobby(roomID, client, client.GetUser());
                         break;
                     case PacketType._LeaveLobby:
                         //packet.data로 LobbyID를 받기

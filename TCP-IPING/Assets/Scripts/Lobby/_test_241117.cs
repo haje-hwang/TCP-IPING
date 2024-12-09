@@ -43,9 +43,14 @@ public class _test_241117 : MonoBehaviour
 
     public void test_JoinRoom()
     {
-        Debug.Log(inputField_JoinRoom.text);
-        Guid input = Guid.Parse(inputField_JoinRoom.text);
-        client.GetHandler().JoinLobby(input);
+        string input = inputField_JoinRoom.text;
+        if (string.IsNullOrWhiteSpace(input))
+            throw new ArgumentException("Input string cannot be null or empty.");
+
+        // 공백 제거
+        string sanitizedInput = input.Replace(" ", "");
+        Guid input_roomID = Guid.Parse(inputField_JoinRoom.text);
+        client.GetHandler().JoinLobby(input_roomID);
         inputField_JoinRoom.text = "";
     }
 }
