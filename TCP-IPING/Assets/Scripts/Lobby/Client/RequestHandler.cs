@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Threading;
 using System.Collections.Concurrent;
+using Lobby;
+using Newtonsoft.Json.Linq;
 
 public class RequestHandler : IRequest
 {
@@ -15,6 +17,9 @@ public class RequestHandler : IRequest
     private static ConcurrentQueue<IPacket> rcvPacketQueue = new ConcurrentQueue<IPacket>();
     private static ConcurrentQueue<string> sendMessegeQueue = new ConcurrentQueue<string>();
     private static SemaphoreSlim packetSemaphore = new SemaphoreSlim(0); // 초기화 시 0, 즉 대기 상태
+
+    //Event
+    public event EventHandler<Lobby.LobbyData> OnLobbyUpdate;
 
     // private 생성자로 외부에서 직접 호출하지 못하도록 제한
     public RequestHandler(User user, TcpClient tcpClient) 
@@ -311,6 +316,18 @@ public class RequestHandler : IRequest
                 case PacketType.Timer:
                     break;
                 case PacketType.GameData:
+                    break;
+                case PacketType.LobbyUpdate:
+                    try
+                    {
+                        JObject jObject = (Newtonsoft.Json.Linq.JObject)packet.data;
+                        LobbyData Ldata = jObject.ToObject<LobbyData>();
+                        OnLobbyUpdate?.Invoke(this, (Lobby.LobbyData)packet.data);
+                    }
+                    catch (System.Exception e)
+                    {
+                        DebugWaringMsg($"In PacketType.LobbyUpdate: {e}");
+                    }
                     break;
             }
         }

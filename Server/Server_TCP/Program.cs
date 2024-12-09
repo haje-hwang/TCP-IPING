@@ -25,6 +25,6 @@ public class Program
         {
             Debug.LogWarning($"Error: {ex.Message}");
         }
-        Debug.Log($"Server Closer");
+        Debug.Log($"Server Closed");
     }
 }

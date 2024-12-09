@@ -42,12 +42,16 @@ namespace Server_TCP.Lobby
                 data.players.Add(player.GetUser());
                 player.joindLobbyId = data.uid;
 
-                IPacket joinedPacket = new IPacket(PacketType.LobbyUpdate, data, Guid.Empty);
-                BroadcastPacket(joinedPacket);
+                UpdateLobby();
 
                 return true;
             }
             return false;
+        }
+        private void UpdateLobby()
+        {
+            IPacket joinedPacket = new IPacket(PacketType.LobbyUpdate, data, Guid.Empty);
+            BroadcastPacket(joinedPacket);
         }
         public bool RemovePlayer(ClientHandler player, User user)
         {
@@ -60,7 +64,7 @@ namespace Server_TCP.Lobby
             }
             return clients.Remove(player);
         }
-        private void CloseLobby()
+        public void CloseLobby()
         {
             foreach (var client in clients)
             {
