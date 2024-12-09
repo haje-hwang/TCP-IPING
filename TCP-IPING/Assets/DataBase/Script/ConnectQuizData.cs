@@ -109,15 +109,21 @@ public class ConnectQuiz : MonoBehaviour
             UnityEngine.Debug.LogError("퀴즈 컬렉션이 설정되지 않았습니다.");
             return;
         }
+
         if (quiz.questions.Count > 1) // 리스트의 항목 개수 확인
         {
             quiz.questions.Clear(); // 리스트를 초기화
         }
 
-        UnityEngine.Debug.Log("퀴즈 컬렉션에서 데이터를 가져옵니다...");
+        UnityEngine.Debug.Log("퀴즈 컬렉션에서 랜덤으로 10개의 데이터를 가져옵니다...");
 
-        // MongoDB에서 모든 문서 가져오기
-        var documents = _quizCollection.Find(Builders<BsonDocument>.Filter.Empty).ToList();
+        // MongoDB에서 30문제 중 랜덤으로 10개 가져오기
+        var pipeline = new[]
+        {
+        new BsonDocument { { "$sample", new BsonDocument { { "size", 10 } } } }
+    };
+
+        var documents = _quizCollection.Aggregate<BsonDocument>(pipeline).ToList();
 
         if (documents == null || documents.Count == 0)
         {
@@ -147,9 +153,10 @@ public class ConnectQuiz : MonoBehaviour
             }
         }
 
-        UnityEngine.Debug.Log($"총 {quiz.questions.Count}개의 질문을 가져왔습니다.");
-        StringBuilder sb = new StringBuilder();
+        UnityEngine.Debug.Log($"총 {quiz.questions.Count}개의 질문을 랜덤으로 가져왔습니다.");
+
         // 확인용 질문 출력
+        StringBuilder sb = new StringBuilder();
         foreach (var q in quiz.questions)
         {
             sb.AppendLine($"ID: {q.id}");
@@ -158,10 +165,11 @@ public class ConnectQuiz : MonoBehaviour
             sb.AppendLine($"Answer Index: {q.answer}");
             sb.AppendLine($"Category: {q.category}");
             sb.AppendLine($"Difficulty: {q.difficulty}");
-            sb.AppendLine("---------------");   
+            sb.AppendLine("---------------");
         }
         UnityEngine.Debug.Log(sb);
     }
+
     public List<Question> FetchFilteredQuestions(string category, string difficulty, int limit = 10)
     {
         if (_quizCollection == null)
