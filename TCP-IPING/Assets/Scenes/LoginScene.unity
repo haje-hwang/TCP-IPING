@@ -1497,6 +1497,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   userList: {fileID: 890659505}
   nameInputField: {fileID: 2003507639}
+  RoomInputField: {fileID: 84058292}
 --- !u!1 &892342780
 GameObject:
   m_ObjectHideFlags: 0
@@ -2170,7 +2171,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1614262278}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 890659508}
+        m_TargetAssemblyTypeName: UserManager, Assembly-CSharp
+        m_MethodName: OnJoinUserButtonClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1614262278
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2291,7 +2304,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1630382904}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 890659508}
+        m_TargetAssemblyTypeName: UserManager, Assembly-CSharp
+        m_MethodName: OnJoinButtonCllick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1630382904
 MonoBehaviour:
   m_ObjectHideFlags: 0
