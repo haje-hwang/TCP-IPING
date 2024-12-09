@@ -26,5 +26,6 @@ public class Program
             Debug.LogWarning($"Error: {ex.Message}");
         }
         Debug.Log($"Server Closed");
+        lobbyServer.CloseServer();
     }
 }

@@ -38,6 +38,11 @@ namespace Server_TCP.Lobby
         }
         ~LobbyServer()
         {
+            CloseServer();
+        }
+        public void CloseServer()
+        {
+            isRunning = false;
             foreach (var gameLobby in lobbyMap.Values)
             {
                 gameLobby.CloseLobby();

@@ -4,6 +4,7 @@ using UnityEngine;
 using TMPro;
 using Lobby;
 using System.Text;
+using System;
 
 public class DisplayLobbyData : MonoBehaviour
 {
@@ -14,18 +15,26 @@ public class DisplayLobbyData : MonoBehaviour
     [SerializeField] TMP_Text Players;
     public void DisplayData(LobbyData data)
     {
-        hostID.text = data.host.ToString();
-        roomID.text = data.uid.ToString();
-        roomName.text = data.name.ToString();
-        MaxPlayer.text = data.maxPlayers.ToString();
-        StringBuilder sb = new StringBuilder();
-        List<User> users = data.players;
-        foreach(User u in users)
+        try
         {
-            sb.Append(u.nickName.ToString());
-            sb.Append(" / ");
-            sb.AppendLine(u.id.ToString());
+            hostID.text = data.host.ToString();
+            roomID.text = data.uid.ToString();
+            roomName.text = data.name.ToString();
+            MaxPlayer.text = data.maxPlayers.ToString();
+            StringBuilder sb = new StringBuilder();
+            List<User> users = data.players;
+            foreach(User u in users)
+            {
+                sb.Append(u.nickName.ToString());
+                sb.Append(" / ");
+                sb.AppendLine(u.id.ToString());
+            }
+            Players.text = sb.ToString();
         }
-        Players.text = sb.ToString();
+        catch (Exception e)
+        {
+            Debug.LogWarning(e.ToString());
+            throw;
+        }
     }
 }

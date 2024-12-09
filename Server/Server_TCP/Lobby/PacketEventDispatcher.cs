@@ -64,7 +64,7 @@ namespace Server_TCP.Lobby
                         if (string.IsNullOrEmpty(roomName))
                             roomName = $"{client.GetUser().nickName}'s Lobby";
 
-                        CreateLobby(client);
+                        CreateLobby(client, roomName);  
                         break;
                     case PacketType._JoinLobby:
                         //packet.data로 LobbyID를 받기
@@ -99,10 +99,10 @@ namespace Server_TCP.Lobby
         {
             OnUserExited?.Invoke(client);
         }
-        public void CreateLobby(ClientHandler client)
+        public void CreateLobby(ClientHandler client, string roomName)
         {
             User user = client.GetUser();
-            GameLobby gameLobby = _server.CreateLobby($"{user.nickName}'s Lobby", 4, user.id);
+            GameLobby gameLobby = _server.CreateLobby(roomName, 4, user.id);
             gameLobby.AddPlayer(client, user);
         }
 

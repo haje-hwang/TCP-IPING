@@ -322,7 +322,7 @@ public class RequestHandler : IRequest
                     {
                         JObject jObject = (Newtonsoft.Json.Linq.JObject)packet.data;
                         LobbyData Ldata = jObject.ToObject<LobbyData>();
-                        OnLobbyUpdate?.Invoke(this, (Lobby.LobbyData)packet.data);
+                        OnLobbyUpdate?.Invoke(this, Ldata);
                     }
                     catch (System.Exception e)
                     {
