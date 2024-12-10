@@ -794,7 +794,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 834782235}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: RankingManager, Assembly-CSharp
         m_MethodName: OnHomeButton
         m_Mode: 1
@@ -1297,6 +1297,7 @@ GameObject:
   - component: {fileID: 749472771}
   - component: {fileID: 749472773}
   - component: {fileID: 749472772}
+  - component: {fileID: 749472774}
   m_Layer: 5
   m_Name: Ranking
   m_TagString: Untagged
@@ -1368,6 +1369,22 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 749472770}
   m_CullTransparentMesh: 1
+--- !u!114 &749472774
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 749472770}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dac7ce78a3c3464288f908c25f5721c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rankingText1: {fileID: 66061610}
+  rankingText2: {fileID: 337123570}
+  rankingText3: {fileID: 1505695618}
+  rankingText4: {fileID: 1374932322}
 --- !u!1 &777738433
 GameObject:
   m_ObjectHideFlags: 0
@@ -1499,7 +1516,6 @@ GameObject:
   m_Component:
   - component: {fileID: 834782234}
   - component: {fileID: 834782233}
-  - component: {fileID: 834782235}
   m_Layer: 0
   m_Name: GameObject
   m_TagString: Untagged
@@ -1544,22 +1560,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &834782235
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 834782232}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0dac7ce78a3c3464288f908c25f5721c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  rankingText1: {fileID: 66061610}
-  rankingText2: {fileID: 337123570}
-  rankingText3: {fileID: 1505695618}
-  rankingText4: {fileID: 1374932322}
 --- !u!1 &893669121
 GameObject:
   m_ObjectHideFlags: 0

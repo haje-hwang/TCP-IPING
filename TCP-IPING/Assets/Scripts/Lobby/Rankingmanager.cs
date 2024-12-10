@@ -10,7 +10,7 @@ public class RankingManager : MonoBehaviour
     public TextMeshProUGUI rankingText4; // 4위 랭킹 텍스트
     private ConnectUser connectUser;
 
-    void Update()
+    void Start()
     {
         connectUser = FindObjectOfType<ConnectUser>();
         if (connectUser == null)

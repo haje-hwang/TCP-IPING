@@ -149,7 +149,6 @@ public void UpdateUserScore(string nickName, int score)
         try
         {
             var result = _Collection.DeleteMany(Builders<BsonDocument>.Filter.Empty);
-
             Debug.Log($"컬렉션 '{roomName}'에서 모든 유저 데이터가 삭제되었습니다. 삭제된 문서 수: {result.DeletedCount}");
         }
         catch (System.Exception ex)
