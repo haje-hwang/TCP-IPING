@@ -77,3 +77,7 @@ TCP-IPING/[Aa]ssets/[Aa]ddressable[Aa]ssets[Dd]ata/*/*.bin*
 # Temporary auto-generated Android Assets
 TCP-IPING/[Aa]ssets/[Ss]treamingAssets/aa.meta
 TCP-IPING/[Aa]ssets/[Ss]treamingAssets/aa/*
+Server/Server_TCP/bin/Debug/net8.0/Server_TCP.exe
+Server/Server_TCP/bin/Debug/net8.0/Server_TCP.dll
+Server/Server_TCP/bin/Debug/net8.0/Server_TCP.dll
+Server/Server_TCP/bin/Debug/net8.0/Server_TCP.exe
