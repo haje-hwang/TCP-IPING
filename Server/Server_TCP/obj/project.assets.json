@@ -55,19 +55,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\HAJE\\.nuget\\packages\\": {}
+    "C:\\Users\\08min\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\CodeFolder\\Github\\TCP-IPING\\Server\\Server_TCP\\Server_TCP.csproj",
+      "projectUniqueName": "C:\\Tcp\\TCP-IPING\\Server\\Server_TCP\\Server_TCP.csproj",
       "projectName": "Server_TCP",
-      "projectPath": "C:\\CodeFolder\\Github\\TCP-IPING\\Server\\Server_TCP\\Server_TCP.csproj",
-      "packagesPath": "C:\\Users\\HAJE\\.nuget\\packages\\",
-      "outputPath": "C:\\CodeFolder\\Github\\TCP-IPING\\Server\\Server_TCP\\obj\\",
+      "projectPath": "C:\\Tcp\\TCP-IPING\\Server\\Server_TCP\\Server_TCP.csproj",
+      "packagesPath": "C:\\Users\\08min\\.nuget\\packages\\",
+      "outputPath": "C:\\Tcp\\TCP-IPING\\Server\\Server_TCP\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\HAJE\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\08min\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [

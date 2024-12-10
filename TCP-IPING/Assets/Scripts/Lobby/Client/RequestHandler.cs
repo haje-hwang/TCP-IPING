@@ -429,6 +429,11 @@ public class RequestHandler : IRequest
         IPacket packet = new IPacket(PacketType._LobbyReady, ReadyState, m_user.id);
         await SendPacketAsync(packet);
     }
+    public async void GameStart(string LobbyName)
+    {
+        IPacket packet = new IPacket(PacketType._GameStart, LobbyName, m_user.id);
+        await SendPacketAsync(packet);
+    }
     public async void SendLobbyMessege(string messege)
     {
         IPacket packet = new IPacket(PacketType._SendLobbyMessege, messege, m_user.id);

@@ -783,6 +783,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d5a09098fbdd4c47858a2b09d039c86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  UserManager: {fileID: 0}
 --- !u!4 &263991263
 Transform:
   m_ObjectHideFlags: 0
@@ -815,7 +816,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &328219938
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1498,6 +1499,7 @@ MonoBehaviour:
   userList: {fileID: 890659505}
   nameInputField: {fileID: 2003507639}
   RoomInputField: {fileID: 84058292}
+  roomName: 
 --- !u!1 &892342780
 GameObject:
   m_ObjectHideFlags: 0

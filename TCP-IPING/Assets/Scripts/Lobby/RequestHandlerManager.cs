@@ -6,6 +6,7 @@ public class RequestHandlerManager : MonoBehaviour
 {
     public static RequestHandlerManager Instance { get; private set; }
     private RequestHandler requestHandler;
+    public UserManager UserManager;
 
     private void Awake()
     {
@@ -74,6 +75,24 @@ public class RequestHandlerManager : MonoBehaviour
         {
             requestHandler.JoinLobbyByName(roomName);
             Debug.Log($"Joined room with ID: {roomName}");
+        }
+        else
+        {
+            Debug.LogWarning("RequestHandler is not initialized!");
+        }
+    }
+
+    public void GameStart(string roomName)
+    {
+        if (requestHandler != null)
+        {
+            // 서버에 게임 시작 요청
+            requestHandler.GameStart(UserManager.roomName);
+
+            Debug.Log("Game start request sent to server.");
+
+            // 추가적인 게임 시작 로직 (예: 씬 전환)
+            //UnityEngine.SceneManagement.SceneManager.LoadScene("GameScene");
         }
         else
         {

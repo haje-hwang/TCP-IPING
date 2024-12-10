@@ -21,6 +21,7 @@ public enum PacketType
     _JoinLobbyByName,
     _LeaveLobby, // 로비 퇴장 패킷
     _LobbyReady, //로비에서 준비
+    _GameStart, //게임 시작 요청
     _SendLobbyMessege,   //로비 메시지(로비 채팅 기능이 있으면)
                          //In Game
     _Answer, //문제 답변

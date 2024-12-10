@@ -7,7 +7,7 @@ public class UserManager : MonoBehaviour
     
     public TMP_InputField nameInputField; // 유저 이름을 입력받는 TMP_InputField
     public TMP_InputField RoomInputField; // 방 이름을 입력받는 TMP_InputField
-    private string roomName;
+    public string roomName;
     private string userName;
     
     // 버튼 클릭 시 호출될 메서드

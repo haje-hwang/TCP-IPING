@@ -8,6 +8,6 @@ build_property.PlatformNeutralAssembly =
 build_property.EnforceExtendedAnalyzerRules = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = Server_TCP
-build_property.ProjectDir = C:\CodeFolder\Github\TCP-IPING\Server\Server_TCP\
+build_property.ProjectDir = C:\Tcp\TCP-IPING\Server\Server_TCP\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
