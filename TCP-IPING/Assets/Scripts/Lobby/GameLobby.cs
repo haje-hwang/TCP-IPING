@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+using Server_TCP.Lobby;
 
 namespace Lobby
 {
@@ -11,28 +12,9 @@ namespace Lobby
         PUBLIC,
         PRIVATE
     }
-    [Serializable]
-    public class LobbyData
-    {
-        public Guid host {get; set;}
-        public Guid uid { get; private set; }    
-        public string name { get; private set; }
-        public int maxPlayers { get; private set; }
-        public LobbyMode state { get; private set; }
-        public List<User> players { get; private set; }
-        public LobbyData(Guid uid, string name, int maxPlayers, Guid host, LobbyMode mode = LobbyMode.PUBLIC)
-        {
-            this.uid = uid;
-            this.name = name;
-            this.maxPlayers = maxPlayers;
-            this.host = host;
-            players = new List<User>();
-            state = mode;
-        }
-    }
     public class GameLobby
     {
-        public LobbyData data;
+        public Server_TCP.Lobby.LobbyData data;
         public bool isRunning {get; private set;}
 
         public List<ClientHandler> clients { get; private set; }

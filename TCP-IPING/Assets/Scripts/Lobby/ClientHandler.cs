@@ -4,6 +4,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using Server_TCP.Lobby;
 
 namespace Lobby
 {
@@ -234,7 +235,7 @@ namespace Lobby
             IPacket packet = new(PacketType.__FirstJoin, newUser, Guid.Empty);
             SendPacketAsync(packet);
         }
-        public void SendLobbyList(List<Lobby.LobbyData> lobbyList)
+        public void SendLobbyList(List<LobbyData> lobbyList)
         {
             IPacket packet = new(PacketType.__FirstJoin, lobbyList, Guid.Empty);
             SendPacketAsync(packet);

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Server_TCP.Lobby;
 
 public interface IRequest
 {
@@ -9,8 +10,8 @@ public interface IRequest
     public void EndJoin();
     public void UpdateUser(User user);
     //Lobby
-    public Task<List<Lobby.LobbyData>> GetLobbyList();
-    public Task<Lobby.LobbyData> GetLobbyData();
+    public Task<List<LobbyData>> GetLobbyList();
+    public Task<LobbyData> GetLobbyData();
     public void CreateLobby(string LobbyName);
     public void JoinLobby(Guid lobbyID);
     public void LeaveLobby();

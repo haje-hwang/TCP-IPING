@@ -1,10 +1,5 @@
-﻿using Server_TCP.Lobby;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Server_TCP.Lobby
 {
@@ -22,7 +17,7 @@ namespace Server_TCP.Lobby
         public string name { get; private set; }
         public int maxPlayers { get; private set; }
         public LobbyMode state { get; private set; }
-        public List<User> players { get; private set; }
+        public List<User> players { get; set; }
         public LobbyData(Guid uid, string name, int maxPlayers, Guid host, LobbyMode mode = LobbyMode.PUBLIC)
         {
             this.uid = uid;

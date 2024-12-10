@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -47,10 +48,9 @@ namespace Server_TCP.Lobby
                             DefineUser(client);
                         else
                         {
-                            JObject jObject = (Newtonsoft.Json.Linq.JObject)packet.data;
-                            User? _user = jObject.ToObject<User>();
-                            client.SetUser(_user);
-                        }//ClientHandler가 생성될 때 대부분 초기화 하기 때문에 ID체크만
+                            client.SetUser(Object2User(packet.data));
+                        }
+                        //ClientHandler가 생성될 때 대부분 초기화 하기 때문에 ID체크만
                         break;
                     case PacketType._EndJoin:
                         //서버에서 퇴장
@@ -83,8 +83,7 @@ namespace Server_TCP.Lobby
                     case PacketType._SendLobbyMessege:
                         break;
                     case PacketType._UpdateUserData:
-                        User user = (User)packet.data;
-                        UpdateUserData(user);
+                        UpdateUserData(Object2User(packet.data));
                         break;
                     default:
                         break;
@@ -96,6 +95,13 @@ namespace Server_TCP.Lobby
                 throw;
             }
         }
+        private User? Object2User (object obj)
+        {
+            JObject jObject = (Newtonsoft.Json.Linq.JObject) obj;
+            User? user = jObject.ToObject<User>();
+            return user;
+        }
+        //
         public void ServerExit(ClientHandler client)
         {
             OnUserExited?.Invoke(client);

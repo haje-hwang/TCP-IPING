@@ -6,6 +6,8 @@ using System.Threading;
 using System.Collections.Concurrent;
 using Lobby;
 using Newtonsoft.Json.Linq;
+using UnityEngine.UI;
+using Server_TCP.Lobby;
 
 public class RequestHandler : IRequest
 {
@@ -19,7 +21,8 @@ public class RequestHandler : IRequest
     private static SemaphoreSlim packetSemaphore = new SemaphoreSlim(0); // 초기화 시 0, 즉 대기 상태
 
     //Event
-    public event EventHandler<Lobby.LobbyData> OnLobbyUpdate;
+    public delegate void LobbyDelegate(LobbyData data, JArray jArray);
+    public event LobbyDelegate OnLobbyUpdate;
 
     // private 생성자로 외부에서 직접 호출하지 못하도록 제한
     public RequestHandler(User user, TcpClient tcpClient) 
@@ -322,7 +325,30 @@ public class RequestHandler : IRequest
                     {
                         JObject jObject = (Newtonsoft.Json.Linq.JObject)packet.data;
                         LobbyData Ldata = jObject.ToObject<LobbyData>();
-                        OnLobbyUpdate?.Invoke(this, Ldata);
+                        List<User> _userList = new List<User>();
+                        JArray jArray = new JArray();
+                        if (jObject["players"] is JArray playersArray)
+                        {
+                            jArray = playersArray;
+                            // _userList = playersArray.ToObject<List<User>>();
+                            // _userList = JsonHelper<List<User>>.Deserialize(playersArray.ToString());
+
+                            // foreach (var item in playersArray)
+                            // {
+                            //     JObject t_jObject = item as JObject;
+                            //     User user = t_jObject.ToObject<User>();
+                            //     UnityEngine.Debug.Log("User: "+JsonHelper<User>.Serialize(user));
+                            //     _userList.Add(user);
+                            // }
+                            // UnityEngine.Debug.Log("JArray: "+playersArray.ToString());
+                            // UnityEngine.Debug.Log("List<User>: "+JsonHelper<List<User>>.Serialize(_userList));
+                        }
+                        else
+                        {
+                            _userList = Ldata.players;
+                        }
+                        UnityEngine.Debug.Log($"Re-Serialize Ldata: {JsonHelper<LobbyData>.Serialize(Ldata)}"); // 로비 데이터 출력
+                        OnLobbyUpdate?.Invoke(Ldata, jArray);
                     }
                     catch (System.Exception e)
                     {
@@ -349,17 +375,17 @@ public class RequestHandler : IRequest
         //     DebugMsg($"FirstJoin(), Deserialize: {id}");
         return new Guid((string)receivedData);
     }
-     public async Task<List<Lobby.LobbyData>> GetLobbyList()
+     public async Task<List<LobbyData>> GetLobbyList()
     {
         IPacket senderPacket= new IPacket(PacketType.__LobbyList, null, m_user.id);
         object receivedData = await SendAndWaitPacketAsync(senderPacket); 
-        return JsonHelper<List<Lobby.LobbyData>>.Deserialize((string)receivedData); 
+        return JsonHelper<List<LobbyData>>.Deserialize((string)receivedData); 
     }
-    public async Task<Lobby.LobbyData> GetLobbyData()
+    public async Task<LobbyData> GetLobbyData()
     {
         IPacket senderPacket= new IPacket(PacketType.__LobbyData, null, m_user.id);
         object receivedData = await SendAndWaitPacketAsync(senderPacket); 
-        return JsonHelper<Lobby.LobbyData>.Deserialize((string)receivedData);
+        return JsonHelper<LobbyData>.Deserialize((string)receivedData);
     }
     public async void StartJoin()
     {

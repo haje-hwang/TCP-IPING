@@ -1,10 +1,9 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
-using Lobby;
 using System.Text;
 using System;
+using Server_TCP.Lobby;
 using Newtonsoft.Json.Linq;
 
 public class DisplayLobbyData : MonoBehaviour
@@ -14,7 +13,7 @@ public class DisplayLobbyData : MonoBehaviour
     [SerializeField] TMP_Text roomName;
     [SerializeField] TMP_Text MaxPlayer;
     [SerializeField] TMP_Text Players;
-    public void DisplayData(LobbyData data)
+    public void DisplayData(LobbyData data, JArray users)
     {
         try
         {
@@ -22,15 +21,15 @@ public class DisplayLobbyData : MonoBehaviour
             roomID.text = data.uid.ToString();
             roomName.text = data.name.ToString();
             MaxPlayer.text = data.maxPlayers.ToString();
-            StringBuilder sb = new StringBuilder();
-            List<User> users = data.players;
-            foreach(User u in users)
-            {
-                sb.Append(u.nickName.ToString());
-                sb.Append(" / ");
-                sb.AppendLine(u.id.ToString());
-            }
-            Players.text = sb.ToString();
+            
+            // StringBuilder sb = new StringBuilder();
+            // foreach(User u in users)
+            // {
+            //     sb.Append(u.nickName.ToString());
+            //     sb.Append(" / ");
+            //     sb.AppendLine(u.id.ToString());
+            // }
+            Players.text = users.ToString();//sb.ToString();
         }
         catch (Exception e)
         {

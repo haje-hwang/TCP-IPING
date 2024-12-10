@@ -1,11 +1,9 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using Lobby;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Events;
-using UnityEngine.UI;
+using Server_TCP.Lobby;
+using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
 
 public class _test_241117 : MonoBehaviour
 {
@@ -15,10 +13,9 @@ public class _test_241117 : MonoBehaviour
     // [SerializeField] Button sendButton_JoinRoom;
     [SerializeField] _testClient client;
     [SerializeField] DisplayLobbyData displayLobbyData;
-    public event Action<LobbyData> OnDataReceived;
     public void test_CreateRoom()
     {
-        Debug.Log(inputField_CreateRoom.text);
+        Debug.Log($"Create Room Named: {inputField_CreateRoom.text}");
         if(!string.IsNullOrWhiteSpace(inputField_CreateRoom.text))
         {
             client.GetHandler().OnLobbyUpdate -= LobbyUpdate;
@@ -31,13 +28,11 @@ public class _test_241117 : MonoBehaviour
             inputField_CreateRoom.text = "Try Again";
         }
     }
-    private void LobbyUpdate(object sender, LobbyData data)
+    private void LobbyUpdate(LobbyData data, JArray users)
     {
-        Debug.Log($"LobbyData: {data}");
         MainThreadDispatcher.ExecuteOnMainThread(() =>
         {
-            Debug.Log($"LobbyData: {data}");
-            displayLobbyData.DisplayData(data);
+            displayLobbyData.DisplayData(data, users);
         });
     }
 
