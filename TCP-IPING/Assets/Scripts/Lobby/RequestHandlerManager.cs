@@ -68,12 +68,12 @@ public class RequestHandlerManager : MonoBehaviour
         }
     }
 
-    public void JoinRoom(Guid roomID)
+    public void JoinRoom(string roomName)
     {
         if (requestHandler != null)
         {
-            requestHandler.JoinLobby(roomID);
-            Debug.Log($"Joined room with ID: {roomID}");
+            requestHandler.JoinLobbyByName(roomName);
+            Debug.Log($"Joined room with ID: {roomName}");
         }
         else
         {

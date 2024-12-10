@@ -25,6 +25,7 @@ namespace Server_TCP.Lobby
         private List<ClientHandler> clients = new List<ClientHandler>();
         private UserList userList = new UserList();
         private ConcurrentDictionary<Guid, GameLobby> lobbyMap = new ConcurrentDictionary<Guid, GameLobby>();
+        private ConcurrentDictionary<string, Guid> roomIdMap = new ConcurrentDictionary<string, Guid>();
         private PacketEventDispatcher eventDispatcher;
 
         public LobbyServer(int PORT)
@@ -101,12 +102,15 @@ namespace Server_TCP.Lobby
             LobbyData data = new LobbyData(lobby_uid, name, maxPlayers, host);
             GameLobby lobby = new GameLobby(data, eventDispatcher);
             lobbyMap.TryAdd(lobby_uid, lobby);
+            roomIdMap.TryAdd(name, lobby_uid);
 
+            lobby.OnLobbyDestroyed -= DestroyLobby;
             lobby.OnLobbyDestroyed += DestroyLobby;
             return lobby;
         }
         public void DestroyLobby(Guid lobbyId)
         {
+            roomIdMap.TryRemove(lobbyMap[lobbyId].data.name, out Guid g);
             lobbyMap.TryRemove(lobbyId, out GameLobby? l);
         }
         public GameLobby FindLobby(Guid uid)
@@ -117,6 +121,11 @@ namespace Server_TCP.Lobby
         public bool JoinLobby(Guid lobbyCode, ClientHandler client, User user)
         {
             return FindLobby(lobbyCode)?.AddPlayer(client, user) ?? false;
+        }
+        public bool JoinLobby(string lobbyName,  ClientHandler client, User user)
+        {
+            Guid id = roomIdMap[lobbyName];
+            return JoinLobby(id, client, user);
         }
         public bool LeaveLobby(Guid lobbyCode, ClientHandler client, User user)
         {

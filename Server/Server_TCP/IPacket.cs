@@ -18,6 +18,7 @@ public enum PacketType
                      //Lobby
     _CreateLobby,    //로비 생성 패킷, data로 로비 이름 정의해서 보내기
     _JoinLobby, // 로비 참가 패킷, data로 참가할 로비 이름 정의해서 보내기
+    _JoinLobbyByName,
     _LeaveLobby, // 로비 퇴장 패킷
     _LobbyReady, //로비에서 준비
     _SendLobbyMessege,   //로비 메시지(로비 채팅 기능이 있으면)

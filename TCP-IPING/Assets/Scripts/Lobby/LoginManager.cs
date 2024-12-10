@@ -65,9 +65,7 @@ public class LoginManager : MonoBehaviour
         {
             try
             {
-                string formattedRoomNumber = roomNumber.PadLeft(32, '0'); // 4자리 숫자를 32자리로 변환
-                Guid roomID = new Guid(formattedRoomNumber); // 방 번호를 Guid로 변환
-                RequestHandlerManager.Instance.JoinRoom(roomID); // 방 입장 요청
+                RequestHandlerManager.Instance.JoinRoom(roomNumber); // 방 입장 요청
 
                 SceneManager.LoadScene("WaitingScene"); // 대기실로 이동
             }

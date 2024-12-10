@@ -414,6 +414,11 @@ public class RequestHandler : IRequest
         IPacket packet = new IPacket(PacketType._JoinLobby, lobbyID, m_user.id);
         await SendPacketAsync(packet);
     }
+    public async void JoinLobbyByName(string lobbyName)
+    {
+        IPacket packet = new IPacket(PacketType._JoinLobbyByName, lobbyName, m_user.id);
+        await SendPacketAsync(packet);
+    }
     public async void LeaveLobby()
     {
         IPacket packet = new IPacket(PacketType._LeaveLobby, null, m_user.id);

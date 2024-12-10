@@ -44,8 +44,23 @@ public class _test_241117 : MonoBehaviour
 
         // 공백 제거
         string sanitizedInput = input.Replace(" ", "");
-        Guid input_roomID = Guid.Parse(inputField_JoinRoom.text);
-        client.GetHandler().JoinLobby(input_roomID);
+        if(sanitizedInput.Length == 36)
+        {
+            try
+            {
+                Guid input_roomID = Guid.Parse(inputField_JoinRoom.text);
+                client.GetHandler().JoinLobby(input_roomID);
+            }
+            catch
+            {
+                throw;
+            }
+        }
+        else
+        {
+            client.GetHandler().JoinLobbyByName(input);
+        }
+        
         inputField_JoinRoom.text = "";
     }
 }

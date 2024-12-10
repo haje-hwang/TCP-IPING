@@ -72,6 +72,11 @@ namespace Server_TCP.Lobby
                         Guid roomID = Guid.Parse((string)packet.data);
                         _server.JoinLobby(roomID, client, client.GetUser());
                         break;
+                    case PacketType._JoinLobbyByName:
+                        //packet.data로 LobbyName를 받기
+                        //이후 Lobby에 해당 유저 넣기
+                        _server.JoinLobby((string)packet.data, client, client.GetUser());
+                        break;
                     case PacketType._LeaveLobby:
                         //packet.data로 LobbyID를 받기
                         //이후 Lobby에 해당 유저 삭제
